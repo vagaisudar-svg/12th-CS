@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Query Lab — XII Std Computer Science, Chapter 12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14213D;
+  --ink-2:#1c2d52;
+  --paper:#FBF6EC;
+  --paper-2:#F2ECDD;
+  --line:#DCD3BC;
+  --teal:#1F9A8C;
+  --teal-dark:#146c62;
+  --amber:#E8A23B;
+  --rose:#C1443F;
+  --ink-soft:#5B6478;
+  --code-bg:#0F1A2E;
+  --code-text:#DCE6F5;
+  --radius:3px;
+  --font-display:'Space Grotesk','Trebuchet MS','Segoe UI',sans-serif;
+  --font-body:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --font-code:'JetBrains Mono','Consolas','Menlo',monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.6;
+}
+::selection{background:var(--amber);color:var(--ink);}
+button{font-family:var(--font-display);cursor:pointer;}
+input,select,textarea{font-family:var(--font-code);}
+
+/* ---------- Layout ---------- */
+.app{display:flex;min-height:100vh;}
+
+.sidebar{
+  width:290px;
+  flex-shrink:0;
+  background:var(--ink);
+  color:#EDE7D6;
+  padding:0 0 40px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-thumb{background:#2b3a5e;border-radius:4px;}
+
+.brand{
+  padding:26px 22px 18px;
+  border-bottom:1px solid #263a63;
+}
+.brand .kicker{
+  font-family:var(--font-code);
+  font-size:11px;
+  letter-spacing:.04em;
+  color:var(--amber);
+  margin-bottom:6px;
+}
+.brand h1{
+  font-family:var(--font-display);
+  font-size:22px;
+  margin:0 0 4px;
+  line-height:1.15;
+}
+.brand p{
+  margin:0;
+  font-size:13px;
+  color:#9FB0D4;
+  font-family:var(--font-display);
+}
+
+.progress-wrap{padding:16px 22px;border-bottom:1px solid #263a63;}
+.progress-label{display:flex;justify-content:space-between;font-family:var(--font-display);font-size:12px;color:#9FB0D4;margin-bottom:6px;}
+.progress-track{height:6px;background:#263a63;border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));width:0%;transition:width .4s ease;}
+
+.langtoggle{display:flex;gap:0;margin:14px 22px 0;border:1px solid #3a4d78;border-radius:99px;overflow:hidden;}
+.langtoggle button{
+  flex:1;background:transparent;color:#9FB0D4;border:none;padding:7px 4px;font-size:12px;font-weight:600;
+}
+.langtoggle button.active{background:var(--teal);color:#03211d;}
+
+nav.topics{padding:10px 10px 0;}
+.group-label{
+  font-family:var(--font-code);
+  font-size:10.5px;
+  letter-spacing:.08em;
+  color:#6F82AC;
+  padding:16px 12px 6px;
+}
+.topic-btn{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  text-align:left;
+  background:transparent;
+  border:none;
+  color:#C9D3EA;
+  padding:9px 12px;
+  border-radius:var(--radius);
+  font-size:13.5px;
+  font-family:var(--font-display);
+  font-weight:500;
+}
+.topic-btn:hover{background:#1c2d52;}
+.topic-btn.active{background:var(--teal);color:#03211d;}
+.topic-btn .dot{
+  width:16px;height:16px;flex-shrink:0;border-radius:50%;
+  border:1.5px solid #4a5c85;display:flex;align-items:center;justify-content:center;
+  font-size:10px;
+}
+.topic-btn.done .dot{background:var(--amber);border-color:var(--amber);color:#3a2600;}
+.topic-btn.active .dot{border-color:#03211d;}
+
+/* ---------- Main ---------- */
+main{flex:1;min-width:0;}
+.topbar{
+  position:sticky;top:0;z-index:5;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+  padding:14px 40px;
+  display:flex;justify-content:space-between;align-items:center;
+  backdrop-filter:blur(4px);
+}
+.topbar .path{font-family:var(--font-code);font-size:12px;color:var(--ink-soft);}
+.topbar .actions{display:flex;gap:10px;}
+.btn{
+  font-family:var(--font-display);font-weight:600;font-size:13px;
+  border:1.5px solid var(--ink);background:transparent;color:var(--ink);
+  padding:8px 16px;border-radius:99px;
+}
+.btn.primary{background:var(--ink);color:var(--paper);}
+.btn.teal{border-color:var(--teal);color:var(--teal-dark);}
+.btn.teal.solid{background:var(--teal);color:#03211d;border-color:var(--teal);}
+.btn:hover{filter:brightness(0.95);}
+.btn:disabled{opacity:.35;cursor:default;}
+
+.content{max-width:880px;margin:0 auto;padding:44px 40px 120px;}
+.section{display:none;}
+.section.active{display:block;animation:rise .35s ease;}
+@keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.eyebrow{font-family:var(--font-code);font-size:12px;color:var(--teal-dark);margin-bottom:8px;}
+h2.title{
+  font-family:var(--font-display);
+  font-size:32px;
+  margin:0 0 6px;
+  line-height:1.1;
+  color:var(--ink);
+}
+.subtitle{color:var(--ink-soft);font-size:16px;margin:0 0 30px;max-width:620px;}
+
+.card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-left:4px solid var(--teal);
+  border-radius:var(--radius);
+  padding:22px 24px;
+  margin-bottom:20px;
+}
+.card h3{font-family:var(--font-display);font-size:16px;margin:0 0 10px;color:var(--ink);}
+.card.amber{border-left-color:var(--amber);}
+.card.rose{border-left-color:var(--rose);}
+.card p{margin:0 0 10px;}
+.card p:last-child{margin-bottom:0;}
+
+.label-tag{
+  display:inline-block;font-family:var(--font-code);font-size:10.5px;letter-spacing:.04em;
+  padding:3px 8px;border-radius:99px;margin-bottom:10px;
+}
+.tag-textbook{background:#E4EEE8;color:var(--teal-dark);}
+.tag-easy{background:#FCEBCB;color:#8a5a10;}
+.tag-example{background:#EAE6F5;color:#5b3fa0;}
+.tag-activity{background:#F4E1DE;color:#8f342e;}
+
+pre.code{
+  background:var(--code-bg);color:var(--code-text);
+  font-family:var(--font-code);font-size:13.5px;line-height:1.65;
+  padding:16px 18px;border-radius:var(--radius);overflow-x:auto;margin:12px 0;
+}
+code.inline{
+  background:var(--paper-2);font-family:var(--font-code);font-size:.9em;
+  padding:1px 6px;border-radius:3px;border:1px solid var(--line);
+}
+.output-box{
+  border:1px dashed var(--ink-soft);
+  padding:12px 16px;border-radius:var(--radius);
+  font-family:var(--font-code);font-size:13px;margin-top:10px;background:var(--paper-2);
+}
+.output-box .k{color:var(--teal-dark);font-weight:700;font-family:var(--font-display);font-size:11px;letter-spacing:.05em;display:block;margin-bottom:6px;}
+
+table.data{border-collapse:collapse;width:100%;font-family:var(--font-code);font-size:13px;margin:10px 0;}
+table.data th,table.data td{border:1px solid var(--line);padding:7px 10px;text-align:left;}
+table.data th{background:var(--ink);color:#EDE7D6;font-family:var(--font-display);font-weight:600;font-size:12px;}
+table.data tr:nth-child(even) td{background:#fbfaf5;}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media (max-width:720px){.two-col{grid-template-columns:1fr;}}
+
+/* accordion for structure blocks */
+details.block{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;background:#fff;}
+details.block summary{
+  cursor:pointer;list-style:none;padding:14px 18px;font-family:var(--font-display);font-weight:600;font-size:14.5px;
+  display:flex;align-items:center;gap:10px;
+}
+details.block summary::-webkit-details-marker{display:none;}
+details.block summary::before{content:'+';font-size:16px;color:var(--teal-dark);width:16px;}
+details.block[open] summary::before{content:'–';}
+details.block .inner{padding:0 18px 18px;}
+
+/* Simulator */
+.sim{
+  background:var(--ink);
+  border-radius:6px;
+  padding:20px;
+  color:#EDE7D6;
+  margin:20px 0;
+}
+.sim .sim-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.sim .sim-head h4{font-family:var(--font-display);margin:0;font-size:14px;color:var(--amber);}
+.sim textarea{
+  width:100%;min-height:90px;background:var(--code-bg);color:var(--code-text);
+  border:1px solid #2b3a5e;border-radius:4px;padding:12px;font-size:13.5px;resize:vertical;
+}
+.sim-btnrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.sim-btnrow button{
+  font-size:12.5px;padding:7px 14px;border-radius:99px;border:1px solid #3a4d78;background:transparent;color:#EDE7D6;
+}
+.sim-btnrow button.run{background:var(--teal);border-color:var(--teal);color:#03211d;font-weight:700;}
+.sim-btnrow button.chip{font-family:var(--font-code);font-size:11.5px;background:#1c2d52;}
+.sim-result{margin-top:14px;background:#0F1A2E;border-radius:4px;padding:14px;font-family:var(--font-code);font-size:12.5px;min-height:30px;}
+.sim-result table.data{margin:0;}
+.sim-result table.data th{background:#1c2d52;}
+.sim-msg-ok{color:#7BE0C4;}
+.sim-msg-err{color:#FF9C93;}
+.sim-schema{font-family:var(--font-code);font-size:11.5px;color:#9FB0D4;margin-top:8px;}
+
+/* practice widgets */
+.mcq{border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;background:#fff;}
+.mcq .q{font-weight:600;margin-bottom:10px;font-family:var(--font-display);font-size:14.5px;}
+.mcq .opt{
+  display:block;width:100%;text-align:left;background:var(--paper-2);border:1px solid var(--line);
+  padding:9px 12px;border-radius:var(--radius);margin-bottom:7px;font-family:var(--font-body);font-size:14px;color:var(--ink);
+}
+.mcq .opt:hover{border-color:var(--teal);}
+.mcq .opt.correct{background:#E4F3EC;border-color:var(--teal);}
+.mcq .opt.wrong{background:#FBE7E5;border-color:var(--rose);}
+.mcq .feedback{font-size:13.5px;margin-top:8px;font-family:var(--font-body);}
+.mcq .feedback.ok{color:var(--teal-dark);}
+.mcq .feedback.no{color:var(--rose);}
+
+.nav-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--line);margin-top:40px;padding-top:20px;
+}
+
+.pill-progress{font-family:var(--font-code);font-size:11px;color:var(--ink-soft);}
+
+.tl{color:var(--ink-soft);font-style:italic;}
+.badge-count{
+  margin-left:auto;background:var(--rose);color:#fff;font-size:10px;border-radius:99px;
+  padding:1px 6px;font-family:var(--font-code);
+}
+
+.hidden-ta{display:none;}
+[lang-mode="ta"] .hidden-en{display:none;}
+[lang-mode="ta"] .hidden-ta{display:block;}
+[lang-mode="ta"] p.hidden-ta{display:block;}
+
+@media (max-width:900px){
+  .sidebar{position:fixed;left:-300px;transition:left .25s;z-index:50;box-shadow:0 0 40px rgba(0,0,0,.3);}
+  .sidebar.open{left:0;}
+  .content{padding:30px 18px 100px;}
+  .topbar{padding:12px 18px;}
+  h2.title{font-size:26px;}
+}
+.menu-toggle{display:none;background:var(--ink);color:#fff;border:none;border-radius:6px;padding:8px 10px;font-size:16px;}
+@media (max-width:900px){.menu-toggle{display:inline-block;}}
+</style>
+</head>
+<body lang-mode="en">
+
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="kicker">TAMIL NADU STATE BOARD · XII STD</div>
+    <h1>SQL Query Lab</h1>
+    <p>Chapter 12 · Computer Science</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Chapter progress</span><span id="progressPct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="langtoggle">
+    <button id="btnEnglish" class="active" onclick="setLang('en')">English</button>
+    <button id="btnTamil" onclick="setLang('ta')">தமிழ்</button>
+  </div>
+
+  <nav class="topics" id="topicNav"></nav>
+</aside>
+
+<main>
+  <div class="topbar">
+    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div class="path" id="crumbPath">Chapter 12 / Introduction</div>
+    <div class="actions">
+      <span class="pill-progress" id="pillProgress">0 / 0 topics complete</span>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+  <!-- ================= WELCOME ================= -->
+  <section class="section" id="sec-welcome">
+    <div class="eyebrow">Chapter 12 · Unit IV</div>
+    <h2 class="title">Structured Query Language (SQL)</h2>
+    <p class="subtitle">A hands-on companion to your XII Std Computer Science textbook — read every concept in plain language, then try it yourself in the built-in query lab.</p>
+
+    <div class="card">
+      <span class="label-tag tag-textbook">Textbook · Learning Objectives</span>
+      <h3>After this chapter, you will be able to:</h3>
+      <ul>
+        <li>Explain the processing skills of SQL.</li>
+        <li>Name the components of SQL.</li>
+        <li>Create a table by specifying fields and records.</li>
+        <li>Insert, update and delete records in a table.</li>
+        <li>Apply constraints to tables.</li>
+        <li>Generate queries using various clauses.</li>
+        <li>Modify the structure of an existing table.</li>
+        <li>Use commands to delete records, delete tables and revoke commands.</li>
+      </ul>
+    </div>
+
+    <div class="card amber">
+      <h3>How to use this lab</h3>
+      <p>Every topic follows the same shape: <strong>What is it → Why it matters → Textbook example → Try it yourself.</strong> Wherever you see a dark panel labelled <em>SQL Playground</em>, you can type real commands and watch the Student table change — it's a "Learning Simulation" of the exact SQL taught in this chapter, running entirely in your browser.</p>
+      <p>Use the sidebar to jump between topics. Your progress is saved on this device automatically.</p>
+    </div>
+
+    <button class="btn primary" onclick="markComplete('welcome'); showTopic('intro')">Start Chapter →</button>
+  </section>
+
+  <!-- ================= 12.1 INTRO ================= -->
+  <section class="section" id="sec-intro">
+    <div class="eyebrow">12.1</div>
+    <h2 class="title">Introduction to SQL</h2>
+    <p class="subtitle">What SQL is, and where it came from.</p>
+
+    <details class="block" open>
+      <summary>A. What is it?</summary>
+      <div class="inner">
+        <p class="hidden-en"><span class="label-tag tag-textbook">Textbook definition</span><br>The Structured Query Language (SQL) is a standard programming language to access and manipulate databases. SQL allows the user to create, retrieve, alter, and transfer information among databases. It is a language designed for managing and accessing data in a Relational Data Base Management System (RDBMS).</p>
+        <p class="hidden-ta">SQL என்பது தரவுத்தளங்களை (databases) அணுகவும் கையாளவும் பயன்படும் ஒரு நிலையான நிரலாக்க மொழி. இதைக் கொண்டு நாம் தரவுகளை உருவாக்கலாம் (create), பெறலாம் (retrieve), மாற்றலாம் (alter), மற்றும் இடமாற்றம் செய்யலாம் (transfer). இது Relational Database Management System (RDBMS) -ல் தரவுகளை நிர்வகிக்கவும், அணுகவும் உருவாக்கப்பட்ட மொழி.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>B. Real-life analogy <span class="label-tag tag-easy">Easy Explanation</span></summary>
+      <div class="inner">
+        <p class="hidden-en">Think of a database as a large steel cupboard full of labelled folders (tables). SQL is the set of instructions you give a librarian: "open this folder", "add this new sheet", "cross out this row", "show me only the sheets where age is above 18". You never touch the folders yourself — you just speak SQL, and the database does the work.</p>
+        <p class="hidden-ta">ஒரு database-ஐ பல கோப்புகள் (tables) அடங்கிய அலமாரி என்று நினைத்துக் கொள்ளுங்கள். SQL என்பது நீங்கள் ஒரு நூலகருக்குக் கொடுக்கும் அறிவுறுத்தல்கள் போன்றது — "இந்தக் கோப்பைத் திற", "இந்தப் புதிய தகவலைச் சேர்", "இந்த வரிசையை நீக்கு" என. நீங்கள் நேரடியாகத் தொடாமல், SQL மொழியில் கேட்டவுடன் database அதைச் செய்யும்.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>C. A short history <span class="label-tag tag-textbook">Textbook</span></summary>
+      <div class="inner">
+        <p class="hidden-en">There are many versions of SQL. The original version was developed at IBM's Research centre and was originally called <strong>Sequel</strong> in the early 1970s. Later the name was changed to SQL. In 1986, ANSI (American National Standard Institute) published an SQL standard, updated again in 1992. The latest SQL standard was released in 2008 and named SQL 2008.</p>
+        <div class="output-box hidden-en"><span class="k">NOTE (TEXTBOOK)</span>Latest SQL standard as of now is SQL 2008, released in 2008.</div>
+        <p class="hidden-ta">SQL-ன் முதல் பதிப்பு IBM ஆய்வு மையத்தில் 1970-களின் தொடக்கத்தில் உருவாக்கப்பட்டது, அப்போது அதன் பெயர் <strong>Sequel</strong>. பின்னர் அதன் பெயர் SQL ஆக மாற்றப்பட்டது. 1986-ல் ANSI SQL தரநிலையை வெளியிட்டது, 1992-ல் மீண்டும் புதுப்பிக்கப்பட்டது. சமீபத்திய தரநிலை SQL 2008.</p>
+      </div>
+    </details>
+
+    <div class="card">
+      <h3>Exam point</h3>
+      <p>SQL was originally called <strong>Sequel</strong>, developed at IBM in the early 1970s. Remember the year <strong>2008</strong> for the latest SQL standard — a common one-mark question.</p>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('intro'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= 12.2 RDBMS ================= -->
+  <section class="section" id="sec-rdbms">
+    <div class="eyebrow">12.2</div>
+    <h2 class="title">Role of SQL in RDBMS</h2>
+    <p class="subtitle">Databases, tables, fields and records — the vocabulary everything else is built on.</p>
+
+    <details class="block" open>
+      <summary>A. What is it?</summary>
+      <div class="inner">
+        <p><span class="label-tag tag-textbook">Textbook</span> RDBMS stands for <strong>Relational DataBase Management System</strong>. Oracle, MySQL, MS SQL Server, IBM DB2 and Microsoft Access are RDBMS packages. SQL is the language used to access data in such databases.</p>
+        <p>In general, a <strong>Database</strong> is a collection of tables that store sets of data that can be queried for use in other applications. RDBMS is a type of DBMS with a row-based table structure that connects related data elements and includes functions related to <strong>Create, Read, Update and Delete</strong> operations — collectively known as <strong>CRUD</strong>.</p>
+        <p>The data in RDBMS is stored in database objects called <strong>Tables</strong>. A table is a collection of related data entries and consists of rows and columns.</p>
+      </div>
+    </details>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>Field (column)</h3>
+        <p>A <strong>field</strong> is a column in a table designed to maintain specific related information about every record in the table. It is a vertical entity — e.g. AdmnNo, StudName, StudAge in a student table.</p>
+      </div>
+      <div class="card amber">
+        <h3>Record (row)</h3>
+        <p>A <strong>Record</strong> is a row — a collection of related fields that exist in a table. It is a horizontal entity representing the details of one particular student.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="label-tag tag-example">Learning Activity</span>
+      <h3>Spot the field vs the record</h3>
+      <table class="data">
+        <tr><th>Admno</th><th>Name</th><th>Gender</th><th>Age</th><th>Place</th></tr>
+        <tr><td>100</td><td>Ashish</td><td>M</td><td>17</td><td>Chennai</td></tr>
+      </table>
+      <p>The column <code class="inline">Name</code> (running down the whole table) is a <strong>field</strong>. The single highlighted row above — everything about Ashish — is one <strong>record</strong>.</p>
+    </div>
+
+    <div class="card rose">
+      <h3>Did you know? <span class="label-tag tag-textbook">Textbook</span></h3>
+      <p>SQL is a language used for accessing databases, while <strong>MySQL</strong> is a database management system — like SQL Server, Oracle, Informix, Postgres, etc. MySQL is an RDBMS.</p>
+    </div>
+
+    <details class="block">
+      <summary>Creating a database <span class="label-tag tag-textbook">12.4 Textbook syntax</span></summary>
+      <div class="inner">
+        <pre class="code">CREATE DATABASE database_name;
+
+-- Example
+CREATE DATABASE stud;
+
+-- To work with a database:
+USE DATABASE;
+
+-- Example
+USE stud;</pre>
+        <p>This chapter's playground works inside one ready-made table called <code class="inline">Student</code>, so you can jump straight to practising commands.</p>
+      </div>
+    </details>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('rdbms'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= 12.3 PROCESSING SKILLS ================= -->
+  <section class="section" id="sec-skills">
+    <div class="eyebrow">12.3</div>
+    <h2 class="title">Processing Skills of SQL</h2>
+    <p class="subtitle">Seven things SQL can do for a database, in the textbook's own words.</p>
+
+    <div class="card">
+      <span class="label-tag tag-textbook">Textbook — verbatim list</span>
+      <ol>
+        <li><strong>Data Definition Language (DDL):</strong> provides commands for defining relation schemas (structure), deleting relations, creating indexes and modifying relation schemas.</li>
+        <li><strong>Data Manipulation Language (DML):</strong> includes commands to insert, delete, and modify tuples in the database.</li>
+        <li><strong>Embedded Data Manipulation Language:</strong> the embedded form of SQL used in high level programming languages.</li>
+        <li><strong>View Definition:</strong> SQL also includes commands for defining views of tables.</li>
+        <li><strong>Authorization:</strong> commands for access rights to relations and views of tables.</li>
+        <li><strong>Integrity:</strong> SQL provides forms for integrity checking using condition.</li>
+        <li><strong>Transaction control:</strong> commands for file transactions and control over transaction processing.</li>
+      </ol>
+    </div>
+
+    <div class="card amber">
+      <h3>Easy Explanation</h3>
+      <p>Of these seven, this chapter focuses on the four you will actually type: <strong>DDL</strong> (build the table), <strong>DML</strong> (fill it with data), <strong>DQL</strong> (ask it questions), and <strong>TCL</strong> (save or undo your changes). Keep this list in mind — every command you meet from here belongs to one of these families.</p>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('skills'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= 12.5 COMPONENTS ================= -->
+  <section class="section" id="sec-components">
+    <div class="eyebrow">12.5</div>
+    <h2 class="title">The Five Components of SQL</h2>
+    <p class="subtitle">Every SQL command you will ever type belongs to one of these five families.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>DDL — Data Definition Language</h3>
+        <p>Defines the database structure or schema. Creates and modifies the structure of database objects.</p>
+        <table class="data">
+          <tr><th>Command</th><th>Function</th></tr>
+          <tr><td>CREATE</td><td>To create tables in the database.</td></tr>
+          <tr><td>ALTER</td><td>Alters the structure of the database.</td></tr>
+          <tr><td>DROP</td><td>Delete tables from database.</td></tr>
+          <tr><td>TRUNCATE</td><td>Remove all records from a table, also release the space occupied.</td></tr>
+        </table>
+      </div>
+      <div class="card amber">
+        <h3>DML — Data Manipulation Language</h3>
+        <p>Used for adding, removing, and modifying data — but not the table's schema.</p>
+        <table class="data">
+          <tr><th>Command</th><th>Function</th></tr>
+          <tr><td>INSERT</td><td>Inserts data into a table.</td></tr>
+          <tr><td>UPDATE</td><td>Updates existing data within a table.</td></tr>
+          <tr><td>DELETE</td><td>Deletes records from a table, but not the space occupied.</td></tr>
+        </table>
+        <p style="margin-top:10px;">Two types: <strong>Procedural DML</strong> — user specifies what data is needed and how to get it. <strong>Non-Procedural DML</strong> — user specifies only what data is needed.</p>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3>DCL — Data Control Language</h3>
+        <p>Controls access to data stored in a database (authorization).</p>
+        <table class="data">
+          <tr><th>Command</th><th>Function</th></tr>
+          <tr><td>GRANT</td><td>Grants permission to perform specific tasks.</td></tr>
+          <tr><td>REVOKE</td><td>Withdraws access permission given by GRANT.</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3>TCL — Transactional Control Language</h3>
+        <p>Manages changes made to data in a table by DML statements.</p>
+        <table class="data">
+          <tr><th>Command</th><th>Function</th></tr>
+          <tr><td>COMMIT</td><td>Saves any transaction into the database permanently.</td></tr>
+          <tr><td>ROLLBACK</td><td>Restores the database to the last commit state.</td></tr>
+          <tr><td>SAVEPOINT</td><td>Temporarily saves a transaction, so you can rollback.</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card rose">
+      <h3>DQL — Data Query Language</h3>
+      <p>Commands used to query or retrieve data from a database.</p>
+      <table class="data">
+        <tr><th>Command</th><th>Function</th></tr>
+        <tr><td>SELECT</td><td>Displays the records from the table.</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Vocabulary <span class="label-tag tag-textbook">12.7 Textbook</span></h3>
+      <table class="data">
+        <tr><th>Term</th><th>Meaning</th></tr>
+        <tr><td>Keywords</td><td>They have a special meaning in SQL. They are understood as instructions.</td></tr>
+        <tr><td>Commands</td><td>Instructions given by the user to the database, also known as statements.</td></tr>
+        <tr><td>Clauses</td><td>Begin with a keyword and consist of a keyword and an argument.</td></tr>
+        <tr><td>Arguments</td><td>The values given to make the clause complete.</td></tr>
+      </table>
+    </div>
+
+    <div class="card amber">
+      <h3>Quick check</h3>
+      <p>Which of DDL/DML/DCL/TCL/DQL would you use to... (a) build a brand-new table? (b) permanently save an INSERT? (c) fetch only students older than 18? Try answering before scrolling on — the Quick Test later checks exactly this.</p>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('components'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= 12.6 DATA TYPES ================= -->
+  <section class="section" id="sec-datatypes">
+    <div class="eyebrow">12.6</div>
+    <h2 class="title">Data Types</h2>
+    <p class="subtitle">Every field must be told what kind of value it will hold.</p>
+
+    <div class="card">
+      <p><span class="label-tag tag-textbook">Textbook</span> The data in a database is stored based on the kind of value stored in it — this is the <strong>data type</strong> of the field. All the values in a given field must be of the same type. The ANSI SQL standard officially recognises only <strong>Text</strong> and <strong>Number</strong> data types, while commercial programs add types like Date and Time.</p>
+    </div>
+
+    <table class="data">
+      <tr><th>Data Type</th><th>Description</th></tr>
+      <tr><td>char (Character)</td><td>Fixed width string value, enclosed in single quotes. E.g. Anu's is written 'Anu' 's'.</td></tr>
+      <tr><td>varchar</td><td>Variable width character string — similar to char except size varies considerably.</td></tr>
+      <tr><td>dec (Decimal)</td><td>A fractional number e.g. 15.12. Size has two parts: precision (total digits) and scale (digits right of the decimal point). Scale cannot exceed precision.</td></tr>
+      <tr><td>numeric</td><td>Same as decimal, except the maximum number of digits may not exceed the precision argument.</td></tr>
+      <tr><td>int (Integer)</td><td>A number without a decimal point. No size argument is used.</td></tr>
+      <tr><td>smallint</td><td>Same as integer, but the default size may be smaller than Integer.</td></tr>
+      <tr><td>float</td><td>A floating point number in base-10 exponential notation, precision up to 64.</td></tr>
+      <tr><td>real</td><td>Same as float, but no size argument; precision up to 64.</td></tr>
+      <tr><td>double</td><td>Same as real, except the precision may exceed 64.</td></tr>
+    </table>
+
+    <div class="card amber">
+      <h3>Common mistake</h3>
+      <p>Forgetting the quotes around <code class="inline">char</code>/<code class="inline">varchar</code> values is a classic beginner slip: <code class="inline">'Chennai'</code> is correct, <code class="inline">Chennai</code> without quotes will cause an error. Numbers (int, dec, float...) never take quotes.</p>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('datatypes'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= CREATE TABLE ================= -->
+  <section class="section" id="sec-create">
+    <div class="eyebrow">12.7.1 · DDL Commands</div>
+    <h2 class="title">CREATE TABLE</h2>
+    <p class="subtitle">Building the structure a table's data will live in.</p>
+
+    <details class="block" open>
+      <summary>Syntax <span class="label-tag tag-textbook">Textbook</span></summary>
+      <div class="inner">
+        <pre class="code">CREATE TABLE &lt;table-name&gt;
+(&lt;column name&gt; &lt;data type&gt; [&lt;size&gt;]
+ &lt;column name&gt; &lt;data type&gt; [&lt;size&gt;] ……
+);</pre>
+        <p>When a table is created, its columns are named, and data types and sizes are specified. Each table must have at least one column.</p>
+      </div>
+    </details>
+
+    <div class="card">
+      <span class="label-tag tag-textbook">Textbook example</span>
+      <h3>Creating the Student table</h3>
+      <pre class="code">CREATE TABLE Student
+(Admno   integer,
+ Name    char(20),
+ Gender  char(1),
+ Age     integer,
+ Place   char(10),
+);</pre>
+      <p>This is a simple table structure without any restrictions — every field can be left empty, and duplicate values are allowed anywhere.</p>
+    </div>
+
+    <div class="card amber">
+      <h3>How this executes — step by step <span class="label-tag tag-easy">Easy Explanation</span></h3>
+      <ol>
+        <li>SQL reads the table name: <code class="inline">Student</code>.</li>
+        <li>It reads each column definition in order, left to right: name, type, optional size.</li>
+        <li>An empty table with five labelled, typed columns is created — no rows yet.</li>
+        <li>You now use <code class="inline">INSERT</code> to start adding records.</li>
+      </ol>
+    </div>
+
+    <div class="sim" id="createSim">
+      <div class="sim-head"><h4>▸ SQL Playground — CREATE TABLE</h4><span style="font-size:11px;color:#9FB0D4;">Learning Simulation</span></div>
+      <textarea id="createInput">CREATE TABLE Student
+(Admno integer, Name char(20), Gender char(1), Age integer, Place char(10));</textarea>
+      <div class="sim-btnrow">
+        <button class="run" onclick="runSim('createInput','createOutput')">▶ Run</button>
+        <button class="chip" onclick="loadExample('createInput','CREATE TABLE Student\n(Admno integer NOT NULL PRIMARY KEY,\n Name char(20) NOT NULL,\n Gender char(1),\n Age integer,\n Place char(10));')">Load: with constraints</button>
+        <button onclick="resetDB()">Reset database</button>
+      </div>
+      <div class="sim-result" id="createOutput">Run a CREATE TABLE statement to see the new (empty) schema.</div>
+    </div>
+
+    <div class="card">
+      <h3>Exam point</h3>
+      <p>Constraints can be added at the <strong>column level</strong> (attached right after that column's type) or the <strong>table level</strong> (a separate line at the end of the definition, usually for constraints spanning more than one column). We meet both next.</p>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('create'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= CONSTRAINTS ================= -->
+  <section class="section" id="sec-constraints">
+    <div class="eyebrow">12.7.2</div>
+    <h2 class="title">Type of Constraints</h2>
+    <p class="subtitle">Rules that stop bad data from ever entering a table.</p>
+
+    <div class="card">
+      <p><span class="label-tag tag-textbook">Textbook</span> Constraints are used to limit the type of data that can go into a table. This ensures the accuracy and reliability of the data in the database. Constraints ensure database integrity, therefore they are also known as <strong>database integrity constraints</strong>. They can be a <strong>Column constraint</strong> (applies to one column only) or a <strong>Table constraint</strong> (applies to a group of one or more columns).</p>
+    </div>
+
+    <details class="block" open>
+      <summary>NOT NULL — a field must always contain a value</summary>
+      <div class="inner">
+        <pre class="code">CREATE TABLE Student
+(
+Admno integer NOT NULL PRIMARY KEY,  -- Primary Key constraint
+Name  char(20) NOT NULL,
+Gender char(1),
+Age   integer,
+Place char(10),
+);</pre>
+        <p>Admno (integer) and Name (char) are both defined <code class="inline">NOT NULL</code> — these two fields must always have a value. Gender, Age and Place have no constraints.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>UNIQUE — no two rows may repeat this value</summary>
+      <div class="inner">
+        <pre class="code">CREATE TABLE Student
+(
+Admno integer NOT NULL UNIQUE,  -- Unique constraint
+Name  char(20) NOT NULL,
+Gender char(1),
+Age   integer,
+Place char(10),
+);</pre>
+        <p>The <strong>UNIQUE</strong> constraint ensures no two rows share the same value in that column. It can only be applied to fields already declared <code class="inline">NOT NULL</code>. Applying two constraints to one field like this — <code class="inline">NOT NULL UNIQUE</code> — is called a <strong>multiple constraint</strong>: the constraints are separated by a space, with a comma at the end of the field definition.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>PRIMARY KEY — uniquely identifies a record</summary>
+      <div class="inner">
+        <pre class="code">CREATE TABLE Student
+(
+Admno integer PRIMARY KEY,  -- Primary Key constraint
+Name  char(20) NOT NULL,
+Gender char(1),
+Age   integer,
+Place char(10),
+);</pre>
+        <p>Similar to UNIQUE, except only <strong>one field</strong> of a table can be set as primary key, and a primary key does not allow NULL values either.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>DEFAULT — fills in a value automatically</summary>
+      <div class="inner">
+        <pre class="code">CREATE TABLE Student
+(
+Admno integer PRIMARY KEY,
+Name  char(20) NOT NULL,
+Gender char(1),
+Age   integer DEFAULT 17,  -- Default Constraint
+Place char(10)
+);</pre>
+        <p>When no value is given for Age, it is automatically set to 17.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>CHECK — restricts values to a condition</summary>
+      <div class="inner">
+        <pre class="code">CREATE TABLE Student
+(
+Admno integer PRIMARY KEY
+Name  char(20) NOT NULL,
+Gender char(1),
+Age   integer CHECK (Age <=19),  -- Check Constraint
+Place char(10),
+);</pre>
+        <p>Only ages of 19 or below are accepted. The check constraint may use relational and logical operators in its condition.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>Table constraint — a constraint spanning several columns</summary>
+      <div class="inner">
+        <pre class="code">CREATE TABLE Student1
+(
+Admno integer NOT NULL,
+Firstname char(20),
+Lastname  char(20),
+Gender char(1),
+Age   integer,
+Place char(10),
+PRIMARY KEY (Firstname, Lastname)  -- Table constraint
+);</pre>
+        <p>Here <strong>Firstname</strong> and <strong>Lastname</strong> together form the primary key — this is a Table constraint, normally written at the end of the definition.</p>
+      </div>
+    </details>
+
+    <div class="card amber">
+      <h3>Common mistakes</h3>
+      <ul>
+        <li>❌ Using UNIQUE on a field that isn't NOT NULL — many systems require NOT NULL first.</li>
+        <li>❌ Trying to set two fields as PRIMARY KEY individually — only one column-level primary key is allowed (use a table constraint for a composite key).</li>
+        <li>❌ Forgetting that PRIMARY KEY already disallows NULLs — you don't need to add NOT NULL separately.</li>
+      </ul>
+    </div>
+
+    <div class="mcq" id="mcqConstraint">
+      <div class="q">Quick check: Which constraint would you use so that every student's Admno is automatically unique AND used to identify each record?</div>
+      <button class="opt" onclick="answerMCQ(this,false,'mcqConstraint')">DEFAULT</button>
+      <button class="opt" onclick="answerMCQ(this,true,'mcqConstraint')">PRIMARY KEY</button>
+      <button class="opt" onclick="answerMCQ(this,false,'mcqConstraint')">CHECK</button>
+      <div class="feedback" id="mcqConstraint-fb"></div>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('constraints'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= DML ================= -->
+  <section class="section" id="sec-dml">
+    <div class="eyebrow">12.7.3 · DML Commands</div>
+    <h2 class="title">INSERT · DELETE · UPDATE</h2>
+    <p class="subtitle">Once the structure exists, these three commands manage the data inside it.</p>
+
+    <details class="block" open>
+      <summary>INSERT — add a new record</summary>
+      <div class="inner">
+        <pre class="code">INSERT INTO &lt;table-name&gt; [column-list] VALUES (values);
+
+INSERT INTO Student (Admno, Name, Gender, Age, Place)
+VALUES (100, 'Ashish', 'M', 17, 'Chennai');</pre>
+        <p>The order of values must match the order of columns named. Specifying column names is optional if you supply data for every column, in schema order:</p>
+        <pre class="code">INSERT INTO Student VALUES (102, 'Akshith', 'M', 17, 'Bangalore');</pre>
+        <p>You can also insert into only <em>some</em> columns:</p>
+        <pre class="code">INSERT INTO Student (Admno, Name, Place) VALUES (103, 'Ayush', 'Delhi');</pre>
+        <div class="output-box"><span class="k">DO YOU KNOW</span>In the INSERT command, fields that are omitted will take either their DEFAULT value (if one is defined) or NULL.</div>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>DELETE — permanently remove records</summary>
+      <div class="inner">
+        <pre class="code">DELETE FROM table-name WHERE condition;
+
+-- Delete one record
+DELETE FROM Student WHERE Admno=104;
+
+-- Delete every record (table stays, but becomes empty)
+DELETE FROM Student;</pre>
+        <p>DELETE removes the entire row, never individual fields — no field argument is needed. It does <strong>not</strong> free the disk space the table occupies (TRUNCATE and DROP handle that, coming up next).</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>UPDATE — change existing values</summary>
+      <div class="inner">
+        <pre class="code">UPDATE &lt;table-name&gt; SET column-name = value, column-name = value, …
+WHERE condition;
+
+UPDATE Student SET Age = 20 WHERE Place = 'Bangalore';
+
+-- Update multiple fields at once
+UPDATE Student SET Age=18, Place = 'Chennai' WHERE Admno = 102;</pre>
+        <p>The <code class="inline">WHERE</code> clause chooses <em>which</em> rows change; <code class="inline">SET</code> says <em>what</em> changes. Leave out WHERE and every row is updated — a very common beginner mistake.</p>
+      </div>
+    </details>
+
+    <div class="card rose">
+      <h3>Common mistake — the missing WHERE</h3>
+      <p>❌ <code class="inline">UPDATE Student SET Age = 20;</code> — this quietly sets <em>every</em> student's age to 20, because there is no WHERE clause to restrict it. Always double-check your WHERE condition before running UPDATE or DELETE.</p>
+    </div>
+
+    <div class="sim" id="dmlSimBlock">
+      <div class="sim-head"><h4>▸ SQL Playground — INSERT / DELETE / UPDATE</h4><span style="font-size:11px;color:#9FB0D4;">Learning Simulation</span></div>
+      <textarea id="dmlInput">INSERT INTO Student (Admno, Name, Gender, Age, Place) VALUES (100, 'Ashish', 'M', 17, 'Chennai');</textarea>
+      <div class="sim-btnrow">
+        <button class="run" onclick="runSim('dmlInput','dmlOutput')">▶ Run</button>
+        <button class="chip" onclick="loadExample('dmlInput',&quot;INSERT INTO Student VALUES (101, 'Adarsh', 'M', 18, 'Delhi');&quot;)">Insert Adarsh</button>
+        <button class="chip" onclick="loadExample('dmlInput',&quot;UPDATE Student SET Age = 20 WHERE Place = 'Chennai';&quot;)">Update example</button>
+        <button class="chip" onclick="loadExample('dmlInput',&quot;DELETE FROM Student WHERE Admno=100;&quot;)">Delete example</button>
+        <button onclick="resetDB()">Reset database</button>
+      </div>
+      <div class="sim-result" id="dmlOutput">Table not created yet — run the CREATE TABLE example above first, or click "Reset database" to load the full Chapter 12 Student table.</div>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('dml'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= ALTER/TRUNCATE/DROP ================= -->
+  <section class="section" id="sec-alterdrop">
+    <div class="eyebrow">12.7.4 · Additional DDL Commands</div>
+    <h2 class="title">ALTER · TRUNCATE · DROP</h2>
+    <p class="subtitle">Changing — or removing — a table you've already built.</p>
+
+    <details class="block" open>
+      <summary>ALTER — change the table's structure</summary>
+      <div class="inner">
+        <pre class="code">-- Add a column
+ALTER TABLE &lt;table-name&gt; ADD &lt;column-name&gt; &lt;data type&gt; &lt;size&gt;;
+ALTER TABLE Student ADD Address char;
+
+-- Modify a column's type/size
+ALTER TABLE &lt;table-name&gt; MODIFY &lt;column-name&gt; &lt;data type&gt; &lt;size&gt;;
+ALTER TABLE Student MODIFY Address char (25);
+
+-- Rename a column
+ALTER TABLE &lt;table-name&gt; CHANGE old-column-name new-column-name new column definition;
+ALTER TABLE Student CHANGE Address City char(20);
+
+-- Remove a column
+ALTER TABLE &lt;table-name&gt; DROP COLUMN &lt;column-name&gt;;
+ALTER TABLE Student DROP COLUMN City;</pre>
+      </div>
+    </details>
+
+    <div class="card">
+      <h3>DELETE vs TRUNCATE vs DROP <span class="label-tag tag-textbook">Textbook comparison</span></h3>
+      <table class="data">
+        <tr><th>Command</th><th>What happens</th></tr>
+        <tr><td>DELETE</td><td>Deletes only the rows matching the WHERE clause (or all rows if none given). Does <strong>not</strong> free the space occupied by the table.</td></tr>
+        <tr><td>TRUNCATE</td><td>Deletes all the rows; the table structure remains, and the space is freed.</td></tr>
+        <tr><td>DROP</td><td>Removes the object entirely from the database — all rows deleted and the table structure itself is removed. Once dropped, a table cannot be recovered.</td></tr>
+      </table>
+      <pre class="code">TRUNCATE TABLE Student;
+DROP TABLE Student;</pre>
+    </div>
+
+    <div class="sim" id="alterSimBlock">
+      <div class="sim-head"><h4>▸ SQL Playground — ALTER / TRUNCATE / DROP</h4><span style="font-size:11px;color:#9FB0D4;">Learning Simulation</span></div>
+      <textarea id="alterInput">ALTER TABLE Student ADD Address char(25);</textarea>
+      <div class="sim-btnrow">
+        <button class="run" onclick="runSim('alterInput','alterOutput')">▶ Run</button>
+        <button class="chip" onclick="loadExample('alterInput','ALTER TABLE Student CHANGE Address City char(20);')">Rename example</button>
+        <button class="chip" onclick="loadExample('alterInput','TRUNCATE TABLE Student;')">Truncate example</button>
+        <button onclick="resetDB()">Reset database</button>
+      </div>
+      <div class="sim-result" id="alterOutput">Reset the database to load the full Student table, then try ALTER.</div>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('alterdrop'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= SELECT BASICS ================= -->
+  <section class="section" id="sec-select">
+    <div class="eyebrow">12.7.5 · DQL Command</div>
+    <h2 class="title">SELECT — retrieving data</h2>
+    <p class="subtitle">The single most-used command in SQL.</p>
+
+    <details class="block" open>
+      <summary>Syntax</summary>
+      <div class="inner">
+        <pre class="code">SELECT &lt;column-list&gt; FROM &lt;table-name&gt;;</pre>
+        <p><strong>table-name</strong> is where the information comes from. <strong>column-list</strong> is one or more columns you want to see.</p>
+        <pre class="code">SELECT Admno, Name FROM Student;
+
+-- every column, every row
+SELECT * FROM Student;</pre>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>DISTINCT — remove duplicate rows</summary>
+      <div class="inner">
+        <pre class="code">SELECT DISTINCT Place FROM Student;</pre>
+        <p>Eliminates redundant repeated values so each place appears only once. When DISTINCT is used, only one NULL value is returned even if several NULLs occur.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>ALL — keep every duplicate</summary>
+      <div class="inner">
+        <pre class="code">SELECT ALL Place FROM Student;</pre>
+        <p>The opposite of DISTINCT — every row's value is shown, duplicates included.</p>
+      </div>
+    </details>
+
+    <div class="sim" id="selectSim1">
+      <div class="sim-head"><h4>▸ SQL Playground — SELECT basics</h4><span style="font-size:11px;color:#9FB0D4;">Learning Simulation · full Student table loaded</span></div>
+      <textarea id="selectInput1">SELECT Admno, Name FROM Student;</textarea>
+      <div class="sim-btnrow">
+        <button class="run" onclick="runSim('selectInput1','selectOutput1')">▶ Run</button>
+        <button class="chip" onclick="loadExample('selectInput1','SELECT * FROM Student;')">SELECT *</button>
+        <button class="chip" onclick="loadExample('selectInput1','SELECT DISTINCT Place FROM Student;')">DISTINCT Place</button>
+        <button class="chip" onclick="loadExample('selectInput1','SELECT ALL Place FROM Student;')">ALL Place</button>
+        <button onclick="resetDB()">Reset database</button>
+      </div>
+      <div class="sim-result" id="selectOutput1">Loading…</div>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('select'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= WHERE / BETWEEN / IN / NULL ================= -->
+  <section class="section" id="sec-where">
+    <div class="eyebrow">12.7.5.2 – 12.7.5.4</div>
+    <h2 class="title">WHERE, BETWEEN, IN &amp; NULL</h2>
+    <p class="subtitle">Filtering rows down to exactly what you need.</p>
+
+    <details class="block" open>
+      <summary>WHERE clause</summary>
+      <div class="inner">
+        <pre class="code">SELECT &lt;column-name&gt;[,&lt;column-name&gt;,….] FROM &lt;table-name&gt; WHERE &lt;condition&gt;;
+
+SELECT Admno, Name, Place FROM Student WHERE Place = 'Chennai';
+SELECT Admno, Name, Age FROM Student WHERE Age >= 18;</pre>
+        <p>Relational operators <code class="inline">= &lt; &lt;= &gt; &gt;= &lt;&gt;</code> compare values. Logical operators <code class="inline">OR, AND, NOT</code> combine multiple conditions:</p>
+        <pre class="code">SELECT Admno, Name, Age, Place FROM Student
+WHERE (Age>=18 AND Place = 'Delhi');
+
+SELECT Admno, Name, Age, Place FROM Student
+WHERE (Age>=18 OR Place ='Delhi');
+
+SELECT Admno, Name, Place FROM Student WHERE (NOT Place ='Delhi');</pre>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>BETWEEN and NOT BETWEEN</summary>
+      <div class="inner">
+        <p>Defines a range of values a record must fall into (inclusive of both ends).</p>
+        <pre class="code">SELECT Admno, Name, Age, Gender FROM Student
+WHERE Age BETWEEN 18 AND 19;
+
+SELECT Admno, Name, Age FROM Student
+WHERE Age NOT BETWEEN 18 AND 19;</pre>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>IN and NOT IN</summary>
+      <div class="inner">
+        <p>IN specifies a list of values to match — similar to a chain of OR conditions.</p>
+        <pre class="code">SELECT Admno, Name, Place FROM Student
+WHERE Place IN ('Chennai', 'Delhi');
+
+SELECT Admno, Name, Place FROM Student
+WHERE Place NOT IN ('Chennai', 'Delhi');</pre>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>NULL values</summary>
+      <div class="inner">
+        <pre class="code">SELECT * FROM Student WHERE Age IS NULL;</pre>
+        <div class="output-box"><span class="k">NOTE</span>Non-NULL values in a table can be listed using IS NOT NULL.</div>
+      </div>
+    </details>
+
+    <div class="sim" id="selectSim2">
+      <div class="sim-head"><h4>▸ SQL Playground — WHERE, BETWEEN, IN</h4><span style="font-size:11px;color:#9FB0D4;">Learning Simulation · full Student table loaded</span></div>
+      <textarea id="selectInput2">SELECT Admno, Name, Age FROM Student WHERE Age BETWEEN 18 AND 19;</textarea>
+      <div class="sim-btnrow">
+        <button class="run" onclick="runSim('selectInput2','selectOutput2')">▶ Run</button>
+        <button class="chip" onclick="loadExample('selectInput2',&quot;SELECT Admno, Name, Place FROM Student WHERE Place IN ('Chennai','Delhi');&quot;)">IN example</button>
+        <button class="chip" onclick="loadExample('selectInput2',&quot;SELECT Admno, Name, Age, Place FROM Student WHERE (Age>=18 AND Place = 'Delhi');&quot;)">AND example</button>
+        <button class="chip" onclick="loadExample('selectInput2',&quot;SELECT Admno, Name, Place FROM Student WHERE (NOT Place ='Delhi');&quot;)">NOT example</button>
+        <button onclick="resetDB()">Reset database</button>
+      </div>
+      <div class="sim-result" id="selectOutput2">Loading…</div>
+    </div>
+
+    <div class="mcq" id="mcqWhere">
+      <div class="q">Predict: how many rows does <code class="inline">SELECT * FROM Student WHERE Age NOT BETWEEN 18 AND 19;</code> return, given the full 8-row Student table?</div>
+      <button class="opt" onclick="answerMCQ(this,false,'mcqWhere')">5</button>
+      <button class="opt" onclick="answerMCQ(this,true,'mcqWhere')">3</button>
+      <button class="opt" onclick="answerMCQ(this,false,'mcqWhere')">8</button>
+      <div class="feedback" id="mcqWhere-fb"></div>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('where'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= ORDER/GROUP/HAVING ================= -->
+  <section class="section" id="sec-ordergroup">
+    <div class="eyebrow">12.7.5.5 – 12.7.5.8</div>
+    <h2 class="title">ORDER BY · GROUP BY · HAVING</h2>
+    <p class="subtitle">Sorting rows, and summarising them into groups.</p>
+
+    <details class="block" open>
+      <summary>ORDER BY — sort the results</summary>
+      <div class="inner">
+        <pre class="code">SELECT &lt;column-name&gt;[,&lt;column-name&gt;,….] FROM &lt;table-name&gt;
+ORDER BY &lt;column1&gt;,&lt;column2&gt;,… ASC | DESC;
+
+SELECT * FROM Student ORDER BY Name;
+SELECT * FROM Student WHERE Age>=18 ORDER BY Name DESC;</pre>
+        <ol>
+          <li>By default, ORDER BY sorts in <strong>ascending</strong> order.</li>
+          <li>Use <code class="inline">DESC</code> for descending, <code class="inline">ASC</code> to be explicit about ascending.</li>
+        </ol>
+        <div class="output-box"><span class="k">NOTE</span>The ORDER BY clause does not affect the original table. Sorting can be done on multiple fields.</div>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>GROUP BY — group rows with identical values</summary>
+      <div class="inner">
+        <pre class="code">SELECT &lt;column-names&gt; FROM &lt;table-name&gt; GROUP BY &lt;column-name&gt; [HAVING condition];
+
+SELECT Gender, count(*) FROM Student GROUP BY Gender;</pre>
+        <p>GROUP BY is mostly used together with <strong>aggregate functions</strong> (like <code class="inline">count(*)</code>) to produce summary reports — for example, counting how many male and female students there are.</p>
+        <div class="output-box"><span class="k">NOTE</span>The * is used with COUNT to include NULL values too.</div>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>HAVING — filter the groups themselves</summary>
+      <div class="inner">
+        <pre class="code">SELECT Place, count(*) FROM Student GROUP BY Place HAVING place = 'Chennai';</pre>
+        <p>WHERE filters individual rows <em>before</em> grouping; HAVING filters the groups <em>after</em> they are formed — and can include aggregate functions like COUNT.</p>
+      </div>
+    </details>
+
+    <div class="sim" id="selectSim3">
+      <div class="sim-head"><h4>▸ SQL Playground — ORDER BY / GROUP BY / HAVING</h4><span style="font-size:11px;color:#9FB0D4;">Learning Simulation · full Student table loaded</span></div>
+      <textarea id="selectInput3">SELECT * FROM Student ORDER BY Name;</textarea>
+      <div class="sim-btnrow">
+        <button class="run" onclick="runSim('selectInput3','selectOutput3')">▶ Run</button>
+        <button class="chip" onclick="loadExample('selectInput3','SELECT Gender, count(*) FROM Student GROUP BY Gender;')">GROUP BY example</button>
+        <button class="chip" onclick="loadExample('selectInput3',&quot;SELECT Place, count(*) FROM Student GROUP BY Place HAVING place = 'Chennai';&quot;)">HAVING example</button>
+        <button class="chip" onclick="loadExample('selectInput3','SELECT * FROM Student WHERE Age>=18 ORDER BY Name DESC;')">WHERE + ORDER BY DESC</button>
+        <button onclick="resetDB()">Reset database</button>
+      </div>
+      <div class="sim-result" id="selectOutput3">Loading…</div>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('ordergroup'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= TCL ================= -->
+  <section class="section" id="sec-tcl">
+    <div class="eyebrow">12.7.6 · TCL Commands</div>
+    <h2 class="title">COMMIT · ROLLBACK · SAVEPOINT</h2>
+    <p class="subtitle">Undo-and-redo for your database changes.</p>
+
+    <details class="block" open>
+      <summary>COMMIT</summary>
+      <div class="inner">
+        <pre class="code">COMMIT;</pre>
+        <p>Permanently saves any transaction to the database. Changes made by INSERT, UPDATE, DELETE are not permanent until COMMIT is given — and once COMMIT runs, those changes can no longer be rolled back.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>SAVEPOINT</summary>
+      <div class="inner">
+        <pre class="code">SAVEPOINT savepoint_name;</pre>
+        <p>Temporarily saves the current state of the table under a name, so you can jump back to it later, even without a full COMMIT.</p>
+      </div>
+    </details>
+
+    <details class="block">
+      <summary>ROLLBACK</summary>
+      <div class="inner">
+        <pre class="code">ROLL BACK TO save_point_name;</pre>
+        <p>Restores the database to the last committed state, or to a named SAVEPOINT.</p>
+      </div>
+    </details>
+
+    <div class="card">
+      <span class="label-tag tag-textbook">Textbook walk-through</span>
+      <h3>Watch a transaction unfold</h3>
+      <pre class="code">INSERT INTO Student VALUES (107, 'Beena', 'F', 20, 'Cochin');
+COMMIT;
+-- Beena is now permanent.
+
+UPDATE Student SET Name = 'Mini' WHERE Admno=105;
+SAVEPOINT A;
+-- Revathi is renamed Mini, and this moment is bookmarked as "A".
+
+INSERT INTO Student VALUES (108, 'Jisha', 'F', 19, 'Delhi');
+SAVEPOINT B;
+-- Jisha is added, bookmarked as "B".
+
+ROLLBACK TO A;
+-- Jisha disappears again — the table returns exactly to how it
+-- looked right after savepoint A (Mini is still there, Beena stays).</pre>
+    </div>
+
+    <div class="sim" id="tclSimBlock">
+      <div class="sim-head"><h4>▸ SQL Playground — COMMIT / SAVEPOINT / ROLLBACK</h4><span style="font-size:11px;color:#9FB0D4;">Learning Simulation</span></div>
+      <textarea id="tclInput">SAVEPOINT A;</textarea>
+      <div class="sim-btnrow">
+        <button class="run" onclick="runSim('tclInput','tclOutput')">▶ Run</button>
+        <button class="chip" onclick="loadExample('tclInput',&quot;INSERT INTO Student VALUES (108, 'Jisha', 'F', 19, 'Delhi');&quot;)">Insert Jisha</button>
+        <button class="chip" onclick="loadExample('tclInput','SAVEPOINT B;')">Savepoint B</button>
+        <button class="chip" onclick="loadExample('tclInput','ROLLBACK TO A;')">Rollback to A</button>
+        <button class="chip" onclick="loadExample('tclInput','COMMIT;')">Commit</button>
+        <button onclick="resetDB()">Reset database</button>
+      </div>
+      <div class="sim-result" id="tclOutput">Loading…</div>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('tcl'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= ERROR DETECTOR ================= -->
+  <section class="section" id="sec-errors">
+    <div class="eyebrow">Practice</div>
+    <h2 class="title">Error Detector</h2>
+    <p class="subtitle">Common beginner mistakes with this chapter's syntax — spot the fix.</p>
+
+    <div class="card rose">
+      <h3>❌ Incorrect</h3>
+      <pre class="code">INSERT INTO Student VALUES (105, Revathi, 'F', 19, 'Chennai');</pre>
+      <p><strong>What's wrong?</strong> <code class="inline">Revathi</code> is a char value and must be inside quotes. This is a <strong>Syntax error</strong> — the database cannot even understand the command.</p>
+      <h3 style="margin-top:16px;">✅ Correct</h3>
+      <pre class="code">INSERT INTO Student VALUES (105, 'Revathi', 'F', 19, 'Chennai');</pre>
+    </div>
+
+    <div class="card rose">
+      <h3>❌ Incorrect</h3>
+      <pre class="code">UPDATE Student SET Age = 20;</pre>
+      <p><strong>What's wrong?</strong> No WHERE clause — every single row gets Age changed to 20. This runs without any error message, so it is a <strong>Logical error</strong>: the command is syntactically fine but does not do what was intended.</p>
+      <h3 style="margin-top:16px;">✅ Correct</h3>
+      <pre class="code">UPDATE Student SET Age = 20 WHERE Place = 'Bangalore';</pre>
+    </div>
+
+    <div class="card rose">
+      <h3>❌ Incorrect</h3>
+      <pre class="code">SELECT Admno, Name FROM Student WHERE Age BETWEEN 19 AND 18;</pre>
+      <p><strong>What's wrong?</strong> The lower value must come first. BETWEEN 19 AND 18 describes an impossible range, so the query silently returns zero rows — another <strong>Logical error</strong>.</p>
+      <h3 style="margin-top:16px;">✅ Correct</h3>
+      <pre class="code">SELECT Admno, Name FROM Student WHERE Age BETWEEN 18 AND 19;</pre>
+    </div>
+
+    <div class="card rose">
+      <h3>❌ Incorrect</h3>
+      <pre class="code">CREATE TABLE Student
+(Admno integer PRIMARY KEY
+ Name char(20) NOT NULL,
+ ...);</pre>
+      <p><strong>What's wrong?</strong> A comma is missing after <code class="inline">PRIMARY KEY</code> — every column definition except the last needs a comma to separate it from the next. This is a <strong>Syntax error</strong>.</p>
+      <h3 style="margin-top:16px;">✅ Correct</h3>
+      <pre class="code">CREATE TABLE Student
+(Admno integer PRIMARY KEY,
+ Name char(20) NOT NULL,
+ ...);</pre>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('errors'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= PREDICT THE OUTPUT ================= -->
+  <section class="section" id="sec-predict">
+    <div class="eyebrow">Practice</div>
+    <h2 class="title">Predict the Output</h2>
+    <p class="subtitle">Read the query, guess the result, then trace it in the playground if you're unsure.</p>
+    <div id="predictContainer"></div>
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('predict'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= DEBUGGING LAB ================= -->
+  <section class="section" id="sec-debug">
+    <div class="eyebrow">Practice</div>
+    <h2 class="title">Debugging Lab</h2>
+    <p class="subtitle">Find the mistake, name its type, then check your reasoning.</p>
+    <div id="debugContainer"></div>
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('debug'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section class="section" id="sec-quiz">
+    <div class="eyebrow">Exam Prep · Evaluation Part I</div>
+    <h2 class="title">Quick Test</h2>
+    <p class="subtitle" style="max-width:none;"><span class="label-tag tag-textbook">Textbook</span> These one-mark questions are taken directly from the Evaluation section of Chapter 12.</p>
+    <div id="quizContainer"></div>
+    <div class="card amber" id="quizScoreCard" style="display:none;">
+      <h3>Your score</h3>
+      <p id="quizScoreText"></p>
+    </div>
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('quiz'); gotoRelative(1)">Mark Complete & Continue →</button>
+    </div>
+  </section>
+
+  <!-- ================= EXAM REVISION ================= -->
+  <section class="section" id="sec-revision">
+    <div class="eyebrow">Exam Prep</div>
+    <h2 class="title">Exam Revision</h2>
+    <p class="subtitle">Everything the chapter wants you to walk out remembering.</p>
+
+    <div class="card">
+      <h3>Must Know</h3>
+      <ul>
+        <li>SQL is a language that helps to create and operate relational databases.</li>
+        <li>MySQL is a database management system.</li>
+        <li>The five components of SQL: <strong>DDL, DML, DQL, TCL, DCL.</strong></li>
+        <li>DDL provides statements for creation and deletion of tables.</li>
+        <li>DML provides statements to insert, update and delete data of a table.</li>
+        <li>DCL provides authorization commands to access data.</li>
+        <li>TCL commands manage transactions in a database.</li>
+        <li>DQL commands generate queries in a database.</li>
+        <li>The CREATE TABLE command creates a new table.</li>
+      </ul>
+    </div>
+
+    <div class="card amber">
+      <h3>Must Remember — key syntax</h3>
+      <pre class="code">CREATE TABLE table-name (column datatype [size], … );
+INSERT INTO table-name [(cols)] VALUES (values);
+DELETE FROM table-name [WHERE condition];
+UPDATE table-name SET col=value, … WHERE condition;
+ALTER TABLE table-name ADD | MODIFY | CHANGE | DROP COLUMN …;
+TRUNCATE TABLE table-name;
+DROP TABLE table-name;
+SELECT [DISTINCT|ALL] cols FROM table-name
+  [WHERE condition]
+  [GROUP BY col [HAVING condition]]
+  [ORDER BY col [ASC|DESC]];
+COMMIT; / SAVEPOINT name; / ROLLBACK TO name;</pre>
+    </div>
+
+    <div class="card">
+      <h3>One-Minute Revision</h3>
+      <p><strong>DDL</strong> builds structure (CREATE, ALTER, DROP, TRUNCATE). <strong>DML</strong> fills it (INSERT, UPDATE, DELETE). <strong>DQL</strong> reads it (SELECT, with DISTINCT/WHERE/BETWEEN/IN/ORDER BY/GROUP BY/HAVING). <strong>DCL</strong> controls who can touch it (GRANT, REVOKE). <strong>TCL</strong> protects it (COMMIT, ROLLBACK, SAVEPOINT). Constraints — NOT NULL, UNIQUE, PRIMARY KEY, DEFAULT, CHECK — keep the data itself honest.</p>
+    </div>
+
+    <div class="card">
+      <h3>Important programs to remember</h3>
+      <p>Be ready to write, from memory: a CREATE TABLE with at least one constraint, an INSERT with a partial column list, an UPDATE with SET + WHERE, and a SELECT combining WHERE with ORDER BY. These four appear, in some form, in nearly every exam.</p>
+    </div>
+
+    <div class="card rose">
+      <span class="label-tag tag-textbook">Textbook · Evaluation Part II (2 marks)</span>
+      <h3>Answer the following questions</h3>
+      <ol>
+        <li>Write a query that selects all students whose age is less than 18, in order wise.</li>
+        <li>Differentiate Unique and Primary Key constraint.</li>
+        <li>Write the difference between table constraint and column constraint.</li>
+        <li>Which component of SQL lets you insert values in tables, and which lets you create a table?</li>
+        <li>What is the difference between SQL and MySQL?</li>
+      </ol>
+    </div>
+
+    <div class="card rose">
+      <span class="label-tag tag-textbook">Textbook · Evaluation Part III (3 marks)</span>
+      <h3>Answer the following questions</h3>
+      <ol>
+        <li>What is a constraint? Write a short note on Primary Key constraint.</li>
+        <li>Write an SQL statement to modify the student table structure by adding a new field.</li>
+        <li>Write any three DDL commands.</li>
+        <li>Write the use of the Savepoint command with an example.</li>
+        <li>Write an SQL statement using the DISTINCT keyword.</li>
+      </ol>
+    </div>
+
+    <div class="card rose">
+      <span class="label-tag tag-textbook">Textbook · Evaluation Part IV (5 marks)</span>
+      <h3>Answer the following questions</h3>
+      <ol>
+        <li>Write the different types of constraints and their functions.</li>
+        <li>Consider the Employee table (EMP CODE, NAME, DESIG, PAY, ALLOWANCE) from the textbook. Write SQL commands to: (i) display all employees in descending order of pay; (ii) display employees whose allowance is between 5000 and 7000; (iii) remove employees who are mechanics; (iv) add a new row; (v) display all employees who are operators.</li>
+        <li>What are the components of SQL? Write the commands in each.</li>
+        <li>Construct, for the Student table: (i) a SELECT statement using GROUP BY; (ii) a SELECT statement using ORDER BY.</li>
+        <li>Write an SQL statement to create a table for employee with any five fields, and create a table constraint for it.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <span class="label-tag tag-activity">Learning Activity</span>
+      <h3>Hands-on Experience <span class="label-tag tag-textbook">from the textbook</span></h3>
+      <ol>
+        <li>Create a query of the Student table listing fields in this order: name, age, place, admno.</li>
+        <li>Create a query to display the Student table with students of age more than 18, with unique city.</li>
+        <li>Create an Employee table with: employee number, employee name, designation, date of joining, basic pay.</li>
+        <li>In the table above, set employee number as primary key and check for NULL values in any field.</li>
+        <li>Prepare a list of all employees who are Managers.</li>
+      </ol>
+      <p>Try building these in the SQL Playgrounds on the CREATE TABLE, DML and SELECT pages.</p>
+    </div>
+
+    <div class="nav-footer">
+      <button class="btn" onclick="gotoRelative(-1)">← Back</button>
+      <button class="btn primary" onclick="markComplete('revision'); showTopic('welcome')">Finish Chapter ✓</button>
+    </div>
+  </section>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* ===================== TOPIC REGISTRY ===================== */
+const TOPICS = [
+  {id:'welcome', group:'Start Here', label:'Welcome & Goals'},
+  {id:'intro', group:'Foundations', label:'12.1 What is SQL?'},
+  {id:'rdbms', group:'Foundations', label:'12.2 Tables, Fields & Records'},
+  {id:'skills', group:'Foundations', label:'12.3 Processing Skills of SQL'},
+  {id:'components', group:'Foundations', label:'12.5 The Five Components'},
+  {id:'datatypes', group:'Foundations', label:'12.6 Data Types'},
+  {id:'create', group:'Data Definition (DDL)', label:'CREATE TABLE'},
+  {id:'constraints', group:'Data Definition (DDL)', label:'Constraints'},
+  {id:'dml', group:'Data Manipulation (DML)', label:'INSERT · DELETE · UPDATE'},
+  {id:'alterdrop', group:'Data Definition (DDL)', label:'ALTER · TRUNCATE · DROP'},
+  {id:'select', group:'Data Query (DQL)', label:'SELECT basics'},
+  {id:'where', group:'Data Query (DQL)', label:'WHERE, BETWEEN, IN, NULL'},
+  {id:'ordergroup', group:'Data Query (DQL)', label:'ORDER BY · GROUP BY · HAVING'},
+  {id:'tcl', group:'Transactions (TCL)', label:'COMMIT · ROLLBACK · SAVEPOINT'},
+  {id:'errors', group:'Practice', label:'Error Detector'},
+  {id:'predict', group:'Practice', label:'Predict the Output'},
+  {id:'debug', group:'Practice', label:'Debugging Lab'},
+  {id:'quiz', group:'Exam Prep', label:'Quick Test (MCQ)'},
+  {id:'revision', group:'Exam Prep', label:'Exam Revision'},
+];
+
+const PROGRESS_KEY = 'sqllab_progress_ch12';
+function loadProgress(){ try{return JSON.parse(localStorage.getItem(PROGRESS_KEY))||{};}catch(e){return {};} }
+function saveProgress(p){ localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+
+function markComplete(id){
+  progress[id] = true;
+  saveProgress(progress);
+  renderSidebar();
+  updateProgressBar();
+}
+function updateProgressBar(){
+  const done = TOPICS.filter(t=>progress[t.id]).length;
+  const pct = Math.round(done/TOPICS.length*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressPct').textContent = pct+'%';
+  document.getElementById('pillProgress').textContent = done+' / '+TOPICS.length+' topics complete';
+}
+
+function renderSidebar(){
+  const nav = document.getElementById('topicNav');
+  nav.innerHTML = '';
+  let lastGroup = null;
+  TOPICS.forEach(t=>{
+    if(t.group !== lastGroup){
+      const g = document.createElement('div');
+      g.className='group-label';
+      g.textContent = t.group;
+      nav.appendChild(g);
+      lastGroup = t.group;
+    }
+    const b = document.createElement('button');
+    b.className = 'topic-btn' + (t.id===currentTopic?' active':'') + (progress[t.id]?' done':'');
+    b.onclick = ()=>showTopic(t.id);
+    b.innerHTML = '<span class="dot">'+(progress[t.id]?'✓':'')+'</span><span>'+t.label+'</span>';
+    nav.appendChild(b);
+  });
+}
+
+function setLang(mode){
+  document.body.setAttribute('lang-mode', mode);
+  document.getElementById('btnEnglish').classList.toggle('active', mode==='en');
+  document.getElementById('btnTamil').classList.toggle('active', mode==='ta');
+  document.querySelectorAll('.hidden-en').forEach(el=>el.style.display = mode==='en' ? '' : 'none');
+  document.querySelectorAll('.hidden-ta').forEach(el=>el.style.display = mode==='ta' ? '' : 'none');
+  localStorage.setItem('sqllab_lang', mode);
+}
+
+let currentTopic = 'welcome';
+function showTopic(id){
+  currentTopic = id;
+  renderSidebar();
+  const t = TOPICS.find(x=>x.id===id);
+  document.getElementById('crumbPath').textContent = 'Chapter 12 / ' + t.label;
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const sec = document.getElementById('sec-'+id);
+  if(sec) sec.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('sidebar').classList.remove('open');
+  const savedLang = localStorage.getItem('sqllab_lang')||'en';
+  setLang(savedLang);
+}
+
+function gotoRelative(offset){
+  const idx = TOPICS.findIndex(t=>t.id===currentTopic);
+  const next = TOPICS[idx+offset];
+  if(next) showTopic(next.id);
+}
+
+/* ===================== MCQ (quick-check) helper ===================== */
+function answerMCQ(btn, isCorrect, groupId){
+  const group = document.getElementById(groupId);
+  const opts = group.querySelectorAll('.opt');
+  opts.forEach(o=>o.disabled = true);
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = document.getElementById(groupId+'-fb');
+  fb.className = 'feedback ' + (isCorrect?'ok':'no');
+  fb.textContent = isCorrect ? '🎉 Correct!' : 'Not quite — the highlighted option above is correct. Take another look at the explanation before this question.';
+  if(!isCorrect){
+    opts.forEach(o=>{ if(o.onclick.toString().includes(',true,')) o.classList.add('correct'); });
+  }
+}
+</script>
+
+<script>
+/* =========================================================================
+   MINI SQL ENGINE  — a hand-built "Learning Simulation" interpreter for the
+   exact subset of SQL taught in Chapter 12 (CREATE, INSERT, DELETE, UPDATE,
+   ALTER, TRUNCATE, DROP, SELECT with DISTINCT/ALL/WHERE/BETWEEN/IN/IS NULL/
+   ORDER BY/GROUP BY/HAVING, and COMMIT/SAVEPOINT/ROLLBACK). It is NOT a
+   general SQL parser — it understands the statement shapes this chapter
+   teaches.
+   ========================================================================= */
+
+const DEFAULT_SCHEMA = [
+  {name:'Admno', type:'integer', constraint:'PRIMARY KEY', default:null},
+  {name:'Name', type:'char(20)', constraint:'NOT NULL', default:null},
+  {name:'Gender', type:'char(1)', constraint:'', default:null},
+  {name:'Age', type:'integer', constraint:'', default:null},
+  {name:'Place', type:'char(10)', constraint:'', default:null},
+];
+const DEFAULT_ROWS = [
+  {Admno:100, Name:'Ashish', Gender:'M', Age:17, Place:'Chennai'},
+  {Admno:101, Name:'Adarsh', Gender:'M', Age:18, Place:'Delhi'},
+  {Admno:102, Name:'Akshith', Gender:'M', Age:17, Place:'Bangalore'},
+  {Admno:103, Name:'Ayush', Gender:'M', Age:18, Place:'Delhi'},
+  {Admno:104, Name:'Abinandh', Gender:'M', Age:18, Place:'Chennai'},
+  {Admno:105, Name:'Revathi', Gender:'F', Age:19, Place:'Chennai'},
+  {Admno:106, Name:'Devika', Gender:'F', Age:19, Place:'Bangalore'},
+  {Admno:107, Name:'Hema', Gender:'F', Age:17, Place:'Chennai'},
+];
+
+let DB = { tables: {} };
+
+function resetDB(){
+  DB = { tables: {
+    student: {
+      name:'Student',
+      schema: JSON.parse(JSON.stringify(DEFAULT_SCHEMA)),
+      rows: JSON.parse(JSON.stringify(DEFAULT_ROWS)),
+      committed: null,
+      savepoints: {}
+    }
+  }};
+  // refresh any visible result panels
+  ['createOutput','dmlOutput','alterOutput','selectOutput1','selectOutput2','selectOutput3','tclOutput'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = renderTablePreview();
+  });
+}
+function renderTablePreview(){
+  const t = DB.tables['student'];
+  if(!t) return '<span class="sim-msg-err">No table exists. Run a CREATE TABLE statement.</span>';
+  return '<span class="sim-msg-ok">Database reset — Student table loaded (' + t.rows.length + ' rows).</span>' + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+}
+
+function loadExample(inputId, text){
+  document.getElementById(inputId).value = text;
+}
+
+/* ---------- value parsing helpers ---------- */
+function splitTopLevel(str, sepRegex){
+  // split on sepRegex occurrences that are NOT inside parentheses or quotes
+  const parts = [];
+  let depth = 0, inQuote = false, buf = '';
+  let i = 0;
+  while(i < str.length){
+    const ch = str[i];
+    if(ch === "'" ){ inQuote = !inQuote; buf += ch; i++; continue; }
+    if(!inQuote){
+      if(ch === '(') depth++;
+      if(ch === ')') depth--;
+      if(depth === 0){
+        const rest = str.slice(i);
+        const m = rest.match(sepRegex);
+        if(m && m.index === 0){
+          parts.push(buf); buf=''; i += m[0].length; continue;
+        }
+      }
+    }
+    buf += ch; i++;
+  }
+  parts.push(buf);
+  return parts.map(p=>p.trim()).filter(p=>p.length);
+}
+
+function parseValueList(str){
+  // parses "1, 'Ashish', 'M', 17, 'Chennai'" respecting quotes
+  return splitTopLevel(str, /^,/).map(parseLiteral);
+}
+function parseLiteral(tok){
+  tok = tok.trim();
+  if(/^'.*'$/.test(tok)) return tok.slice(1,-1);
+  if(/^-?\d+(\.\d+)?$/.test(tok)) return Number(tok);
+  if(/^null$/i.test(tok)) return null;
+  return tok;
+}
+function fmtVal(v){
+  if(v === null || v === undefined) return '<i style="color:#8a94ad;">NULL</i>';
+  return String(v);
+}
+
+/* ---------- WHERE evaluator ---------- */
+function evalWhere(cond, row){
+  cond = cond.trim();
+  if(/^\(.*\)$/.test(cond) && isBalancedWrap(cond)) return evalWhere(cond.slice(1,-1), row);
+
+  // top-level OR
+  let parts = splitTopLevel(cond, /^\s+OR\s+/i);
+  if(parts.length > 1) return parts.some(p=>evalWhere(p,row));
+
+  // top-level AND — but must not split inside BETWEEN ... AND ...
+  parts = splitTopLevelAndAware(cond);
+  if(parts.length > 1) return parts.every(p=>evalWhere(p,row));
+
+  return evalTerm(cond, row);
+}
+function isBalancedWrap(s){
+  let depth = 0;
+  for(let i=0;i<s.length;i++){
+    if(s[i]==='(') depth++;
+    if(s[i]===')') { depth--; if(depth===0 && i !== s.length-1) return false; }
+  }
+  return depth === 0;
+}
+function splitTopLevelAndAware(str){
+  // split on top-level AND, but skip an AND that belongs to a preceding BETWEEN
+  const tokens = [];
+  let depth=0, inQuote=false, buf='';
+  let i=0;
+  let sinceBetween = false;
+  while(i < str.length){
+    const ch = str[i];
+    if(ch === "'"){ inQuote = !inQuote; buf+=ch; i++; continue; }
+    if(!inQuote){
+      if(ch==='(') depth++;
+      if(ch===')') depth--;
+      if(depth===0){
+        const rest = str.slice(i);
+        const mBetween = rest.match(/^\s+BETWEEN\s+/i);
+        if(mBetween){ sinceBetween = true; buf += mBetween[0]; i += mBetween[0].length; continue; }
+        const mAnd = rest.match(/^\s+AND\s+/i);
+        if(mAnd){
+          if(sinceBetween){ sinceBetween = false; buf += mAnd[0]; i += mAnd[0].length; continue; }
+          tokens.push(buf); buf=''; i += mAnd[0].length; continue;
+        }
+      }
+    }
+    buf += ch; i++;
+  }
+  tokens.push(buf);
+  return tokens.map(t=>t.trim()).filter(t=>t.length);
+}
+function evalTerm(term, row){
+  term = term.trim();
+  if(/^\(.*\)$/.test(term) && isBalancedWrap(term)) return evalWhere(term.slice(1,-1), row);
+  let m;
+  if(m = term.match(/^NOT\s+(.+)$/i)) return !evalWhere(m[1], row);
+  if(m = term.match(/^(\w+)\s+NOT\s+BETWEEN\s+(.+?)\s+AND\s+(.+)$/i)){
+    const v = row[findKey(row,m[1])]; const lo = parseLiteral(m[2]); const hi = parseLiteral(m[3]);
+    return !(v >= lo && v <= hi);
+  }
+  if(m = term.match(/^(\w+)\s+BETWEEN\s+(.+?)\s+AND\s+(.+)$/i)){
+    const v = row[findKey(row,m[1])]; const lo = parseLiteral(m[2]); const hi = parseLiteral(m[3]);
+    return (v >= lo && v <= hi);
+  }
+  if(m = term.match(/^(\w+)\s+NOT\s+IN\s*\((.+)\)$/i)){
+    const v = row[findKey(row,m[1])]; const list = parseValueList(m[2]);
+    return !list.includes(v);
+  }
+  if(m = term.match(/^(\w+)\s+IN\s*\((.+)\)$/i)){
+    const v = row[findKey(row,m[1])]; const list = parseValueList(m[2]);
+    return list.includes(v);
+  }
+  if(m = term.match(/^(\w+)\s+IS\s+NOT\s+NULL$/i)){
+    return row[findKey(row,m[1])] !== null && row[findKey(row,m[1])] !== undefined;
+  }
+  if(m = term.match(/^(\w+)\s+IS\s+NULL$/i)){
+    const v = row[findKey(row,m[1])];
+    return v === null || v === undefined;
+  }
+  if(m = term.match(/^(\w+)\s*(<>|>=|<=|=|>|<)\s*(.+)$/)){
+    const v = row[findKey(row,m[1])];
+    const target = parseLiteral(m[3]);
+    switch(m[2]){
+      case '=': return v == target;
+      case '<>': return v != target;
+      case '>': return v > target;
+      case '<': return v < target;
+      case '>=': return v >= target;
+      case '<=': return v <= target;
+    }
+  }
+  return false;
+}
+function findKey(row, name){
+  const keys = Object.keys(row);
+  const hit = keys.find(k=>k.toLowerCase()===name.toLowerCase());
+  return hit || name;
+}
+
+/* ---------- rendering ---------- */
+function renderRowsAsTable(rows, cols){
+  if(!rows.length) return '<div style="margin-top:8px;color:#9FB0D4;">(0 rows)</div>';
+  let html = '<table class="data"><tr>' + cols.map(c=>'<th>'+c+'</th>').join('') + '</tr>';
+  rows.forEach(r=>{
+    html += '<tr>' + cols.map(c=>{
+      const key = findKey(r,c);
+      return '<td>'+fmtVal(r[key])+'</td>';
+    }).join('') + '</tr>';
+  });
+  html += '</table>';
+  return html;
+}
+
+/* ---------- command handlers ---------- */
+function ok(msg){ return '<span class="sim-msg-ok">'+msg+'</span>'; }
+function err(msg){ return '<span class="sim-msg-err">✕ '+msg+'</span>'; }
+
+function execStatement(stmt){
+  stmt = stmt.trim().replace(/;\s*$/,'');
+  if(!stmt) return '';
+
+  let m;
+
+  // ---- CREATE TABLE ----
+  if(m = stmt.match(/^CREATE\s+TABLE\s+(\w+)\s*\(([\s\S]+)\)$/i)){
+    const tname = m[1];
+    const body = m[2].trim().replace(/,\s*$/,'');
+    const defs = splitTopLevel(body, /^,/);
+    const schema = [];
+    defs.forEach(d=>{
+      d = d.trim();
+      const tm = d.match(/^(\w+)\s+([\w]+(\([^)]*\))?)\s*(.*)$/);
+      if(tm){
+        let constraint = tm[4] ? tm[4].trim() : '';
+        let def = null;
+        const dm = constraint.match(/DEFAULT\s+('[^']*'|-?\d+(\.\d+)?)/i);
+        if(dm) def = parseLiteral(dm[1]);
+        schema.push({name:tm[1], type:tm[2], constraint:constraint, default:def});
+      } else if(/PRIMARY\s+KEY/i.test(d)){
+        // table-level primary key, cosmetic
+        schema._tablePK = d;
+      }
+    });
+    DB.tables[tname.toLowerCase()] = { name: tname, schema, rows: [], committed:null, savepoints:{} };
+    return ok('Table <b>'+tname+'</b> created with '+schema.length+' column(s).') +
+      '<div class="sim-schema">Schema: ' + schema.map(c=>c.name+' '+c.type+(c.constraint?' '+c.constraint:'')).join(', ') + '</div>';
+  }
+
+  // ---- DROP TABLE ----
+  if(m = stmt.match(/^DROP\s+TABLE\s+(\w+)$/i)){
+    const key = m[1].toLowerCase();
+    if(!DB.tables[key]) return err('Table "'+m[1]+'" does not exist.');
+    delete DB.tables[key];
+    return ok('Table <b>'+m[1]+'</b> and its structure have been permanently removed.');
+  }
+
+  // ---- TRUNCATE TABLE ----
+  if(m = stmt.match(/^TRUNCATE\s+TABLE\s+(\w+)$/i)){
+    const t = getTable(m[1]); if(t.error) return t.error;
+    t.rows = [];
+    return ok('All rows removed from <b>'+t.name+'</b>; structure and space are freed.');
+  }
+
+  // ---- ALTER TABLE ----
+  if(m = stmt.match(/^ALTER\s+TABLE\s+(\w+)\s+ADD\s+(?:COLUMN\s+)?(\w+)\s+([\w]+(\([^)]*\))?)$/i)){
+    const t = getTable(m[1]); if(t.error) return t.error;
+    t.schema.push({name:m[2], type:m[3], constraint:'', default:null});
+    t.rows.forEach(r=>r[m[2]] = null);
+    return ok('Column <b>'+m[2]+'</b> ('+m[3]+') added to <b>'+t.name+'</b>.') + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+  }
+  if(m = stmt.match(/^ALTER\s+TABLE\s+(\w+)\s+MODIFY\s+(?:COLUMN\s+)?(\w+)\s+([\w]+(\([^)]*\))?)$/i)){
+    const t = getTable(m[1]); if(t.error) return t.error;
+    const col = t.schema.find(c=>c.name.toLowerCase()===m[2].toLowerCase());
+    if(!col) return err('Column "'+m[2]+'" not found.');
+    col.type = m[3];
+    return ok('Column <b>'+m[2]+'</b> modified to type <b>'+m[3]+'</b>.') + '<div class="sim-schema">Schema: ' + t.schema.map(c=>c.name+' '+c.type).join(', ') + '</div>';
+  }
+  if(m = stmt.match(/^ALTER\s+TABLE\s+(\w+)\s+CHANGE\s+(\w+)\s+(\w+)\s+([\w]+(\([^)]*\))?)$/i)){
+    const t = getTable(m[1]); if(t.error) return t.error;
+    const col = t.schema.find(c=>c.name.toLowerCase()===m[2].toLowerCase());
+    if(!col) return err('Column "'+m[2]+'" not found.');
+    const oldName = col.name;
+    col.name = m[3]; col.type = m[4];
+    t.rows.forEach(r=>{ r[m[3]] = r[oldName]; delete r[oldName]; });
+    return ok('Column <b>'+oldName+'</b> renamed to <b>'+m[3]+'</b>.') + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+  }
+  if(m = stmt.match(/^ALTER\s+TABLE\s+(\w+)\s+DROP\s+COLUMN\s+(\w+)$/i)){
+    const t = getTable(m[1]); if(t.error) return t.error;
+    t.schema = t.schema.filter(c=>c.name.toLowerCase()!==m[2].toLowerCase());
+    t.rows.forEach(r=>delete r[m[2]]);
+    return ok('Column <b>'+m[2]+'</b> removed from <b>'+t.name+'</b>.') + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+  }
+
+  // ---- INSERT ----
+  if(m = stmt.match(/^INSERT\s+INTO\s+(\w+)\s*(\(([^)]+)\))?\s*VALUES\s*\(([\s\S]+)\)$/i)){
+    const t = getTable(m[1]); if(t.error) return t.error;
+    const cols = m[3] ? m[3].split(',').map(s=>s.trim()) : t.schema.map(c=>c.name);
+    const vals = parseValueList(m[4]);
+    if(cols.length !== vals.length) return err('Column count ('+cols.length+') does not match value count ('+vals.length+').');
+    const row = {};
+    t.schema.forEach(c=>{ row[c.name] = (c.default !== null && c.default !== undefined) ? c.default : null; });
+    cols.forEach((c,i)=>{
+      const schemaCol = t.schema.find(sc=>sc.name.toLowerCase()===c.toLowerCase());
+      row[schemaCol ? schemaCol.name : c] = vals[i];
+    });
+    t.rows.push(row);
+    return ok('1 row inserted into <b>'+t.name+'</b>.') + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+  }
+
+  // ---- DELETE ----
+  if(m = stmt.match(/^DELETE\s+FROM\s+(\w+)(\s+WHERE\s+([\s\S]+))?$/i)){
+    const t = getTable(m[1]); if(t.error) return t.error;
+    const before = t.rows.length;
+    if(m[3]) t.rows = t.rows.filter(r=>!evalWhere(m[3], r));
+    else t.rows = [];
+    const removed = before - t.rows.length;
+    return ok(removed+' row(s) deleted from <b>'+t.name+'</b>.') + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+  }
+
+  // ---- UPDATE ----
+  if(m = stmt.match(/^UPDATE\s+(\w+)\s+SET\s+([\s\S]+?)(\s+WHERE\s+([\s\S]+))?$/i)){
+    const t = getTable(m[1]); if(t.error) return t.error;
+    const assigns = splitTopLevel(m[2], /^,/).map(a=>{
+      const am = a.match(/^(\w+)\s*=\s*(.+)$/);
+      return {col:am[1], val: parseLiteral(am[2])};
+    });
+    let count = 0;
+    t.rows.forEach(r=>{
+      if(!m[4] || evalWhere(m[4], r)){
+        assigns.forEach(a=>{ const key = findKey(r,a.col); r[key] = a.val; });
+        count++;
+      }
+    });
+    return ok(count+' row(s) updated in <b>'+t.name+'</b>.') + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+  }
+
+  // ---- COMMIT ----
+  if(/^COMMIT$/i.test(stmt)){
+    const t = DB.tables['student']; if(!t) return err('No table to commit.');
+    t.committed = JSON.parse(JSON.stringify(t.rows));
+    return ok('Transaction committed — this state of <b>'+t.name+'</b> is now permanent.');
+  }
+  // ---- SAVEPOINT ----
+  if(m = stmt.match(/^SAVEPOINT\s+(\w+)$/i)){
+    const t = DB.tables['student']; if(!t) return err('No table to save.');
+    t.savepoints[m[1]] = JSON.parse(JSON.stringify(t.rows));
+    return ok('Savepoint <b>'+m[1]+'</b> recorded ('+t.rows.length+' rows at this moment).');
+  }
+  // ---- ROLLBACK ----
+  if(m = stmt.match(/^ROLL\s*BACK\s+TO\s+(\w+)$/i)){
+    const t = DB.tables['student']; if(!t) return err('No table to roll back.');
+    if(!t.savepoints[m[1]]) return err('Savepoint "'+m[1]+'" not found.');
+    t.rows = JSON.parse(JSON.stringify(t.savepoints[m[1]]));
+    return ok('Rolled back to savepoint <b>'+m[1]+'</b>.') + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+  }
+  if(/^ROLL\s*BACK$/i.test(stmt)){
+    const t = DB.tables['student']; if(!t) return err('No table to roll back.');
+    if(!t.committed) return err('No COMMIT has been made yet — nothing to roll back to.');
+    t.rows = JSON.parse(JSON.stringify(t.committed));
+    return ok('Rolled back to the last COMMIT.') + renderRowsAsTable(t.rows, t.schema.map(c=>c.name));
+  }
+
+  // ---- SELECT ----
+  if(m = stmt.match(/^SELECT\s+([\s\S]+?)\s+FROM\s+(\w+)(\s+WHERE\s+([\s\S]+?))?(\s+GROUP\s+BY\s+(\w+)(\s+HAVING\s+([\s\S]+?))?)?(\s+ORDER\s+BY\s+([\s\S]+?))?$/i)){
+    const t = getTable(m[2]); if(t.error) return t.error;
+    let colsPart = m[1].trim();
+    let distinct=false, all=false;
+    if(/^DISTINCT\s+/i.test(colsPart)){ distinct=true; colsPart = colsPart.replace(/^DISTINCT\s+/i,''); }
+    if(/^ALL\s+/i.test(colsPart)){ all=true; colsPart = colsPart.replace(/^ALL\s+/i,''); }
+
+    let rows = t.rows.slice();
+    if(m[4]) rows = rows.filter(r=>evalWhere(m[4], r));
+
+    // GROUP BY
+    if(m[6]){
+      const gcol = m[6];
+      const groups = {};
+      rows.forEach(r=>{
+        const key = r[findKey(r,gcol)];
+        if(!groups[key]) groups[key] = [];
+        groups[key].push(r);
+      });
+      let outRows = Object.keys(groups).map(k=>{
+        const grp = groups[k];
+        const o = {}; o[gcol] = grp[0][findKey(grp[0],gcol)];
+        o['count(*)'] = grp.length;
+        return o;
+      });
+      if(m[8]){
+        const havingCond = m[8].replace(/count\(\*\)/gi,'__count__');
+        outRows = outRows.filter(o=>{
+          const probe = Object.assign({}, o, {__count__:o['count(*)']});
+          return evalWhere(havingCond, probe);
+        });
+      }
+      const cols = /count\(\*\)/i.test(colsPart) ? [gcol,'count(*)'] : [gcol];
+      return ok('Query result:') + renderRowsAsTable(outRows, cols);
+    }
+
+    // column list
+    let cols;
+    if(colsPart === '*') cols = t.schema.map(c=>c.name);
+    else cols = colsPart.split(',').map(s=>s.trim());
+
+    let outRows = rows.map(r=>{
+      const o = {};
+      cols.forEach(c=>{ o[c] = r[findKey(r,c)]; });
+      return o;
+    });
+
+    if(distinct){
+      const seen = new Set(); const uniq = [];
+      outRows.forEach(o=>{
+        const key = JSON.stringify(o);
+        if(!seen.has(key)){ seen.add(key); uniq.push(o); }
+      });
+      outRows = uniq;
+    }
+
+    if(m[10]){
+      const orderSpec = m[10].trim();
+      const descAll = /\bDESC\s*$/i.test(orderSpec);
+      const cleanSpec = orderSpec.replace(/\s+(ASC|DESC)\s*$/i,'');
+      const ocols = cleanSpec.split(',').map(s=>s.trim());
+      outRows.sort((a,b)=>{
+        for(const oc of ocols){
+          const av = a[findKey(a,oc)], bv = b[findKey(b,oc)];
+          if(av < bv) return descAll ? 1 : -1;
+          if(av > bv) return descAll ? -1 : 1;
+        }
+        return 0;
+      });
+    }
+
+    return ok('Query result ('+outRows.length+' row'+(outRows.length===1?'':'s')+'):') + renderRowsAsTable(outRows, cols);
+  }
+
+  return err('This playground understands CREATE, INSERT, DELETE, UPDATE, ALTER, TRUNCATE, DROP, SELECT, COMMIT, SAVEPOINT and ROLLBACK in the forms taught in this chapter. Check the spelling and punctuation of your statement.');
+}
+
+function getTable(name){
+  const t = DB.tables[name.toLowerCase()];
+  if(!t) return {error: err('Table "'+name+'" does not exist yet. Run CREATE TABLE first, or click "Reset database".')};
+  return t;
+}
+
+function runSim(inputId, outputId){
+  const text = document.getElementById(inputId).value;
+  const statements = splitTopLevel(text, /^;/).length ? text.split(/;\s*(?:\n|$)/).map(s=>s.trim()).filter(s=>s.length) : [text];
+  const out = document.getElementById(outputId);
+  let html = '';
+  statements.forEach(s=>{
+    if(!s) return;
+    try{
+      html += '<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #223252;"><div style="color:#7C8BB0;margin-bottom:4px;">&gt; '+escapeHtml(s)+';</div>' + execStatement(s) + '</div>';
+    }catch(e){
+      html += '<div style="margin-bottom:10px;">'+err('Could not run this statement — check it matches the syntax shown above.')+'</div>';
+    }
+  });
+  out.innerHTML = html || '<span class="sim-msg-err">Nothing to run.</span>';
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ===================== PREDICT THE OUTPUT ===================== */
+const PREDICT_Q = [
+  {
+    q: "SELECT Admno, Name FROM Student WHERE Place = 'Bangalore';",
+    context: "Full 8-row Student table (Admno 100–107).",
+    options: ["Only Akshith (102) and Devika (106)", "All 8 students", "Only students named starting with A", "An error, because Place isn't SELECTed"],
+    correct: 0,
+    why: "WHERE filters rows first — only the two students whose Place is Bangalore qualify. The SELECT list can name different columns than the WHERE clause; that's allowed."
+  },
+  {
+    q: "SELECT Gender, count(*) FROM Student GROUP BY Gender;",
+    context: "Full 8-row Student table: 5 male, 3 female.",
+    options: ["8 rows, one per student", "2 rows: M→5, F→3", "1 row with total 8", "An error — GROUP BY needs a WHERE clause"],
+    correct: 1,
+    why: "GROUP BY collapses rows sharing the same Gender into one summary row each, and count(*) counts how many original rows fell into that group."
+  },
+  {
+    q: "SELECT DISTINCT Place FROM Student;",
+    context: "Places in the table: Chennai (x4), Delhi (x2), Bangalore (x2).",
+    options: ["8 rows", "3 rows: Chennai, Delhi, Bangalore", "0 rows", "4 rows, since Chennai appears most"],
+    correct: 1,
+    why: "DISTINCT removes duplicate values in the result, so each unique place is shown exactly once, regardless of how many students live there."
+  },
+  {
+    q: "SELECT * FROM Student WHERE Age NOT BETWEEN 18 AND 19;",
+    context: "Ages in the table: 17,18,17,18,18,19,19,17.",
+    options: ["The 3 students aged 17", "The 5 students aged 18 or 19", "All 8 students", "0 rows"],
+    correct: 0,
+    why: "NOT BETWEEN 18 AND 19 keeps only rows outside that range — the three students aged 17."
+  },
+];
+function buildPredict(){
+  const c = document.getElementById('predictContainer');
+  c.innerHTML = '';
+  PREDICT_Q.forEach((item,idx)=>{
+    const box = document.createElement('div');
+    box.className='mcq';
+    box.id = 'predict-'+idx;
+    box.innerHTML = '<div class="q">Query '+(idx+1)+': <code class="inline">'+escapeHtml(item.q)+'</code><br><span style="font-weight:400;font-size:13px;color:var(--ink-soft);">'+item.context+'</span></div>' +
+      item.options.map((op,i)=>'<button class="opt" onclick="answerPredict('+idx+','+i+',this)">'+op+'</button>').join('') +
+      '<div class="feedback" id="predict-'+idx+'-fb"></div>' +
+      '<button class="btn teal" style="margin-top:8px;font-size:12px;padding:5px 12px;" onclick="traceInPlayground(&quot;'+item.q.replace(/"/g,'&quot;')+'&quot;)">Trace this in the playground →</button>';
+    c.appendChild(box);
+  });
+}
+function answerPredict(qIdx, optIdx, btn){
+  const item = PREDICT_Q[qIdx];
+  const box = document.getElementById('predict-'+qIdx);
+  box.querySelectorAll('.opt').forEach(o=>o.disabled=true);
+  const isCorrect = optIdx === item.correct;
+  btn.classList.add(isCorrect?'correct':'wrong');
+  const fb = document.getElementById('predict-'+qIdx+'-fb');
+  fb.className = 'feedback ' + (isCorrect?'ok':'no');
+  fb.textContent = (isCorrect ? '🎉 Correct! ' : 'Not quite. ') + item.why;
+  if(!isCorrect) box.querySelectorAll('.opt')[item.correct].classList.add('correct');
+}
+function traceInPlayground(query){
+  showTopic('ordergroup');
+  setTimeout(()=>{
+    document.getElementById('selectInput3').value = query;
+    runSim('selectInput3','selectOutput3');
+    document.getElementById('selectInput3').scrollIntoView({behavior:'smooth',block:'center'});
+  }, 150);
+}
+
+/* ===================== DEBUGGING LAB ===================== */
+const DEBUG_Q = [
+  {
+    code:"INSERT INTO Student VALUES (108, 'Kiran', M, 18, 'Salem');",
+    line:"the value M for Gender",
+    options:['Syntax error — M is missing quotes','Logical error — wrong column order','Runtime error — table full'],
+    correct:0,
+    why:"Char values must always be inside single quotes. Without them, SQL tries to read M as a column or keyword and fails to parse the statement — a syntax error."
+  },
+  {
+    code:"DELETE FROM Student;",
+    line:"the missing WHERE clause",
+    options:['Syntax error','Logical error — deletes every row, not just the intended one','Runtime error'],
+    correct:1,
+    why:"The statement is grammatically valid SQL, so it runs — but without WHERE it removes all rows, which is almost never what was intended. That makes it a logical error."
+  },
+  {
+    code:"SELECT Admno, Name FROM Student ORDER BY Ages;",
+    line:"the column name Ages",
+    options:['Logical error — sorts in the wrong direction','Syntax error — the column is called Age, not Ages','Runtime error — too many rows'],
+    correct:1,
+    why:"The Student table has a column named Age (singular). Ages doesn't exist, so the database cannot find it — this is flagged as an error rather than silently ignored."
+  },
+];
+function buildDebug(){
+  const c = document.getElementById('debugContainer');
+  c.innerHTML = '';
+  DEBUG_Q.forEach((item,idx)=>{
+    const box = document.createElement('div');
+    box.className='mcq';
+    box.id='debug-'+idx;
+    box.innerHTML = '<div class="q">Spot the mistake in:<br><code class="inline" style="display:inline-block;margin-top:6px;">'+escapeHtml(item.code)+'</code></div>' +
+      '<div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">What kind of mistake is this, and why?</div>' +
+      item.options.map((op,i)=>'<button class="opt" onclick="answerDebug('+idx+','+i+',this)">'+op+'</button>').join('') +
+      '<div class="feedback" id="debug-'+idx+'-fb"></div>';
+    c.appendChild(box);
+  });
+}
+function answerDebug(qIdx, optIdx, btn){
+  const item = DEBUG_Q[qIdx];
+  const box = document.getElementById('debug-'+qIdx);
+  box.querySelectorAll('.opt').forEach(o=>o.disabled=true);
+  const isCorrect = optIdx === item.correct;
+  btn.classList.add(isCorrect?'correct':'wrong');
+  const fb = document.getElementById('debug-'+qIdx+'-fb');
+  fb.className = 'feedback ' + (isCorrect?'ok':'no');
+  fb.textContent = (isCorrect ? '🎉 Correct! ' : 'Not quite. ') + item.why;
+  if(!isCorrect) box.querySelectorAll('.opt')[item.correct].classList.add('correct');
+}
+
+/* ===================== QUICK TEST (from textbook Evaluation Part I) ===================== */
+const QUIZ_Q = [
+  {q:"Which commands provide definitions for creating table structure, deleting relations, and modifying relation schemas?", options:['DDL','DML','DCL','DQL'], correct:0},
+  {q:"Which command lets you change the structure of the table?", options:['SELECT','ORDER BY','MODIFY','ALTER'], correct:3},
+  {q:"The command to delete a table including the structure is:", options:['DROP','DELETE','DELETE ALL','ALTER TABLE'], correct:0},
+  {q:"Queries can be generated using:", options:['SELECT','ORDER BY','MODIFY','ALTER'], correct:0},
+  {q:"The clause used to sort data in a database:", options:['SORT BY','ORDER BY','GROUP BY','SELECT'], correct:1},
+];
+let quizScore = 0, quizAnswered = 0;
+function buildQuiz(){
+  const c = document.getElementById('quizContainer');
+  c.innerHTML = '';
+  quizScore = 0; quizAnswered = 0;
+  document.getElementById('quizScoreCard').style.display='none';
+  QUIZ_Q.forEach((item,idx)=>{
+    const box = document.createElement('div');
+    box.className='mcq';
+    box.id='quiz-'+idx;
+    box.innerHTML = '<div class="q">'+(idx+1)+'. '+item.q+'</div>' +
+      item.options.map((op,i)=>'<button class="opt" onclick="answerQuiz('+idx+','+i+',this)">'+op+'</button>').join('') +
+      '<div class="feedback" id="quiz-'+idx+'-fb"></div>';
+    c.appendChild(box);
+  });
+}
+function answerQuiz(qIdx, optIdx, btn){
+  const item = QUIZ_Q[qIdx];
+  const box = document.getElementById('quiz-'+qIdx);
+  box.querySelectorAll('.opt').forEach(o=>o.disabled=true);
+  const isCorrect = optIdx === item.correct;
+  if(isCorrect) quizScore++;
+  quizAnswered++;
+  btn.classList.add(isCorrect?'correct':'wrong');
+  const fb = document.getElementById('quiz-'+qIdx+'-fb');
+  fb.className = 'feedback ' + (isCorrect?'ok':'no');
+  fb.textContent = isCorrect ? '🎉 Correct!' : 'Not quite.';
+  if(!isCorrect) box.querySelectorAll('.opt')[item.correct].classList.add('correct');
+  if(quizAnswered === QUIZ_Q.length){
+    const card = document.getElementById('quizScoreCard');
+    card.style.display='block';
+    document.getElementById('quizScoreText').textContent = 'You scored '+quizScore+' out of '+QUIZ_Q.length+'. ' + (quizScore===QUIZ_Q.length ? "Perfect — you know this chapter's components cold." : 'Revisit the "Components of SQL" and "ALTER/TRUNCATE/DROP" topics for the ones you missed.');
+  }
+}
+
+/* ===================== INIT ===================== */
+resetDB();
+renderSidebar();
+buildPredict();
+buildDebug();
+buildQuiz();
+updateProgressBar();
+showTopic('welcome');
+const savedLang0 = localStorage.getItem('sqllab_lang')||'en';
+setLang(savedLang0);
+</script>
+</body>
+</html>
